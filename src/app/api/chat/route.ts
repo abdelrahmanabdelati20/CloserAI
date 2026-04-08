@@ -102,6 +102,11 @@ export async function POST(req: Request) {
           })),
         };
         isDemoMode = false;
+      } else if (!client && apiKey !== DEMO_API_KEY) {
+        // Client not found in database and not the demo key
+        return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+      } else if (client && !client.isActive) {
+        return NextResponse.json({ error: "Account deactivated. Please contact support." }, { status: 403 });
       }
     } catch {
       // Database unavailable (Vercel serverless) — use demo mode
