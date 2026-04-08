@@ -55,8 +55,9 @@ const PLANS = [
 
 export default function PricingPage() {
   const handlePaySetup = (plan: typeof PLANS[0]) => {
-    const desc = encodeURIComponent(`CloserAI ${plan.name} Plan - Setup Fee`);
-    const url = `https://www.paypal.com/paypalme/${PAYPAL_EMAIL}/${plan.setup}USD?description=${desc}`;
+    const itemName = encodeURIComponent(`CloserAI ${plan.name} Plan - Setup Fee`);
+    // PayPal direct payment link using business email
+    const url = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_EMAIL)}&amount=${plan.setup}&currency_code=USD&item_name=${itemName}&no_shipping=1&return=${encodeURIComponent(window.location.origin + '/login')}&cancel_return=${encodeURIComponent(window.location.origin + '/pricing')}`;
     window.open(url, "_blank");
   };
 

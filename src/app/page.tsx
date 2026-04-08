@@ -115,7 +115,7 @@ export default function LandingPage() {
             <a href="#features" className="text-gray-600 hover:text-brand-600 transition">Features</a>
             <a href="#pricing" className="text-gray-600 hover:text-brand-600 transition">Pricing</a>
             <a href="#demo" className="text-gray-600 hover:text-brand-600 transition">Demo</a>
-            <Link href="/login" className="text-gray-600 hover:text-brand-600 transition">Login</Link>
+            <Link href="/pricing" className="text-gray-600 hover:text-brand-600 transition">Login</Link>
             <a href="#pricing" className="gradient-brand text-white px-5 py-2 rounded-lg font-medium hover:opacity-90 transition">
               Get Started
             </a>
@@ -336,7 +336,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <a
-                  href="/login"
+                  href="/pricing"
                   className={`block text-center py-3 rounded-xl font-semibold transition ${
                     plan.popular
                       ? "bg-white text-brand-700 hover:bg-gray-100"
