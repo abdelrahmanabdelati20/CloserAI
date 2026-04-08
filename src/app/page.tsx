@@ -76,26 +76,45 @@ const TESTIMONIALS = [
   },
 ];
 
+// Demo uses the real AI — powered by Claude
+const DEMO_API_KEY = "cai_44d60f6ac0e849d78060792f010730ed";
+
 export default function LandingPage() {
   const [demoMessages, setDemoMessages] = useState([
-    { role: "assistant", content: "Hi! I'm your AI assistant at Sunshine Realty. Looking to buy, sell, or just exploring? I'd love to help!" },
+    { role: "assistant", content: "Hi there! I'm Sarah, your AI real estate assistant at Sunshine Realty. Whether you're looking to buy, sell, or just exploring — I'm here to help! What are you looking for?" },
   ]);
   const [demoInput, setDemoInput] = useState("");
+  const [demoConvId, setDemoConvId] = useState<string | null>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
 
-  const handleDemo = () => {
-    if (!demoInput.trim()) return;
+  const handleDemo = async () => {
+    if (!demoInput.trim() || demoLoading) return;
     const userMsg = demoInput;
     setDemoInput("");
     setDemoMessages((prev) => [...prev, { role: "user", content: userMsg }]);
-    setTimeout(() => {
-      setDemoMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Great question! I'd love to help you find the perfect property. Could you tell me your name so I can personalize your search? Also, what area are you most interested in?",
-        },
-      ]);
-    }, 1000);
+    setDemoLoading(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey: DEMO_API_KEY,
+          conversationId: demoConvId,
+          message: userMsg,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setDemoMessages((prev) => [...prev, { role: "assistant", content: "Sorry, I'm having a brief moment — try again!" }]);
+      } else {
+        setDemoConvId(data.conversationId);
+        setDemoMessages((prev) => [...prev, { role: "assistant", content: data.message }]);
+      }
+    } catch {
+      setDemoMessages((prev) => [...prev, { role: "assistant", content: "Sorry, something went wrong. Please try again!" }]);
+    }
+    setDemoLoading(false);
   };
 
   return (
@@ -115,7 +134,7 @@ export default function LandingPage() {
             <a href="#features" className="text-gray-600 hover:text-brand-600 transition">Features</a>
             <a href="#pricing" className="text-gray-600 hover:text-brand-600 transition">Pricing</a>
             <a href="#demo" className="text-gray-600 hover:text-brand-600 transition">Demo</a>
-            <Link href="/pricing" className="text-gray-600 hover:text-brand-600 transition">Login</Link>
+            <Link href="/login" className="text-gray-600 hover:text-brand-600 transition">Login</Link>
             <a href="#pricing" className="gradient-brand text-white px-5 py-2 rounded-lg font-medium hover:opacity-90 transition">
               Get Started
             </a>
@@ -233,7 +252,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="h-80 overflow-y-auto p-4 space-y-3">
+            <div id="demo-chat-area" className="h-80 overflow-y-auto p-4 space-y-3">
               {demoMessages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
@@ -247,6 +266,17 @@ export default function LandingPage() {
                   </div>
                 </div>
               ))}
+              {demoLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: "0ms"}} />
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: "150ms"}} />
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: "300ms"}} />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="p-4 border-t flex gap-2">
               <input
@@ -254,14 +284,16 @@ export default function LandingPage() {
                 value={demoInput}
                 onChange={(e) => setDemoInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleDemo()}
-                placeholder="Type a message..."
-                className="flex-1 px-4 py-2 bg-gray-50 rounded-xl border-0 focus:ring-2 focus:ring-brand-500 outline-none text-sm"
+                placeholder={demoLoading ? "Sarah is typing..." : "Try it! Ask about homes in Miami..."}
+                disabled={demoLoading}
+                className="flex-1 px-4 py-2 bg-gray-50 rounded-xl border-0 focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:opacity-50"
               />
               <button
                 onClick={handleDemo}
-                className="gradient-brand text-white px-4 py-2 rounded-xl hover:opacity-90 transition"
+                disabled={demoLoading}
+                className="gradient-brand text-white px-4 py-2 rounded-xl hover:opacity-90 transition disabled:opacity-50"
               >
-                Send
+                {demoLoading ? "..." : "Send"}
               </button>
             </div>
           </div>
