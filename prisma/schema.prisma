@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Platform admin and client users
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  role          String    @default("client") // "admin" or "client"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  client        Client?
+}
+
+// Client business accounts (real estate agents/brokerages)
+model Client {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  businessName    String
+  phone           String    @default("")
+  website         String    @default("")
+
+  // License & Access Control
+  apiKey          String    @unique  // Widget authentication key
+  isActive        Boolean   @default(true) // Master kill switch
+  plan            String    @default("starter") // starter, professional, enterprise
+
+  // PayPal Subscription
+  paypalSubId     String?   // PayPal subscription ID
+  paypalStatus    String    @default("pending") // active, suspended, cancelled, pending
+
+  // AI Configuration
+  agentName       String    @default("AI Assistant")
+  welcomeMessage  String    @default("Hi! I'm your real estate AI assistant. How can I help you find your dream property?")
+  systemPrompt    String    @default("")
+  brandColor      String    @default("#2563eb")
+
+  // Usage Limits
+  monthlyLimit    Int       @default(500) // conversations per month
+  usageThisMonth  Int       @default(0)
+  usageResetDate  DateTime  @default(now())
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  leads           Lead[]
+  conversations   Conversation[]
+  properties      Property[]
+}
+
+// Captured leads from chat conversations
+model Lead {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  name          String    @default("")
+  email         String    @default("")
+  phone         String    @default("")
+
+  status        String    @default("new") // new, contacted, qualified, converted, lost
+  budget        String    @default("")
+  location      String    @default("")
+  propertyType  String    @default("") // house, apartment, condo, land
+  notes         String    @default("")
+  source        String    @default("widget") // widget, manual
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  conversations Conversation[]
+}
+
+// Chat conversations
+model Conversation {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  lead          Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  visitorName   String    @default("Visitor")
+  status        String    @default("active") // active, closed
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  messages      Message[]
+}
+
+// Individual chat messages
+model Message {
+  id              String    @id @default(uuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  role            String    // "user" or "assistant"
+  content         String
+
+  createdAt       DateTime  @default(now())
+}
+
+// Property listings (optional - clients can add their listings for AI to reference)
+model Property {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  title         String
+  description   String    @default("")
+  price         Float     @default(0)
+  address       String    @default("")
+  city          String    @default("")
+  bedrooms      Int       @default(0)
+  bathrooms     Int       @default(0)
+  sqft          Int       @default(0)
+  propertyType  String    @default("house")
+  status        String    @default("active") // active, sold, pending
+  imageUrl      String    @default("")
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
