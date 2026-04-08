@@ -158,10 +158,10 @@ export default function LandingPage() {
             converts website visitors into ready-to-close leads — while you sleep.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <a href="#pricing" className="gradient-brand text-white px-8 py-4 rounded-xl text-lg font-semibold hover:opacity-90 transition shadow-lg shadow-brand-600/25">
+            <a href="/get-started" className="gradient-brand text-white px-8 py-4 rounded-xl text-lg font-semibold hover:opacity-90 transition shadow-lg shadow-brand-600/25">
               Start Converting Leads Today
             </a>
-            <a href="#demo" className="border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl text-lg font-semibold hover:border-brand-300 transition">
+            <a href="/demo" className="border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl text-lg font-semibold hover:border-brand-300 transition">
               See Live Demo
             </a>
           </div>
@@ -368,7 +368,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <a
-                  href="/pricing"
+                  href="/get-started"
                   className={`block text-center py-3 rounded-xl font-semibold transition ${
                     plan.popular
                       ? "bg-white text-brand-700 hover:bg-gray-100"
@@ -392,7 +392,7 @@ export default function LandingPage() {
             Set up in 5 minutes. See results in 24 hours.
           </p>
           <a
-            href="#pricing"
+            href="/get-started"
             className="inline-block bg-white text-brand-700 px-10 py-4 rounded-xl text-lg font-bold hover:bg-gray-100 transition shadow-xl"
           >
             Start Your Free Trial
