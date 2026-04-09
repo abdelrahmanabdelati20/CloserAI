@@ -19,6 +19,12 @@ export default function PropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importTab, setImportTab] = useState<"url" | "csv">("url");
+  const [importUrl, setImportUrl] = useState("");
+  const [importCsv, setImportCsv] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "", price: "", address: "", city: "",
     bedrooms: "3", bathrooms: "2", sqft: "1500",
@@ -52,18 +58,117 @@ export default function PropertiesPage() {
     load();
   };
 
+  const handleImport = async () => {
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const res = await fetch("/api/dashboard/properties/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: importTab,
+          url: importTab === "url" ? importUrl : undefined,
+          csv: importTab === "csv" ? importCsv : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setImportResult(`Error: ${data.error}`);
+      } else {
+        setImportResult(`Successfully imported ${data.imported} of ${data.total} properties!`);
+        setImportUrl("");
+        setImportCsv("");
+        load();
+      }
+    } catch (e: any) {
+      setImportResult(`Error: ${e.message}`);
+    }
+    setImporting(false);
+  };
+
   if (loading) {
     return <div className="flex justify-center py-20"><div className="animate-spin w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full" /></div>;
   }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 flex-wrap gap-3">
         <h1 className="text-3xl font-bold text-gray-900">Properties ({properties.length})</h1>
-        <button onClick={() => setShowForm(!showForm)} className="gradient-brand text-white px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition">
-          + Add Property
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => { setShowImport(!showImport); setShowForm(false); }} className="bg-purple-100 text-purple-700 px-5 py-2.5 rounded-xl font-medium hover:bg-purple-200 transition">
+            Bulk Import
+          </button>
+          <button onClick={() => { setShowForm(!showForm); setShowImport(false); }} className="gradient-brand text-white px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition">
+            + Add Property
+          </button>
+        </div>
       </div>
+
+      {showImport && (
+        <div className="bg-white rounded-2xl shadow-sm border p-6 mb-8">
+          <h2 className="text-xl font-bold mb-4">Bulk Import Properties</h2>
+
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setImportTab("url")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${importTab === "url" ? "bg-brand-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+            >
+              From Website URL
+            </button>
+            <button
+              onClick={() => setImportTab("csv")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${importTab === "csv" ? "bg-brand-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+            >
+              From CSV
+            </button>
+          </div>
+
+          {importTab === "url" && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Your Website URL (we&apos;ll auto-detect your listings)</label>
+              <input
+                type="url"
+                value={importUrl}
+                onChange={(e) => setImportUrl(e.target.value)}
+                placeholder="https://yourwebsite.com/listings"
+                className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-brand-500"
+              />
+              <p className="text-xs text-gray-500 mt-2">Enter a page with property listings. AI will extract them automatically.</p>
+            </div>
+          )}
+
+          {importTab === "csv" && (
+            <div>
+              <label className="block text-sm font-medium mb-2">CSV Data (paste or upload)</label>
+              <textarea
+                value={importCsv}
+                onChange={(e) => setImportCsv(e.target.value)}
+                placeholder="title,price,bedrooms,bathrooms,sqft,city,propertyType,description&#10;Modern Condo,485000,2,2,1200,Miami,condo,Beautiful downtown condo"
+                rows={6}
+                className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-brand-500 font-mono text-xs"
+              />
+              <p className="text-xs text-gray-500 mt-2">Expected columns: title, price, bedrooms, bathrooms, sqft, city, propertyType, description</p>
+            </div>
+          )}
+
+          {importResult && (
+            <div className={`mt-4 p-3 rounded-lg text-sm ${importResult.startsWith("Error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
+              {importResult}
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={handleImport}
+              disabled={importing || (importTab === "url" ? !importUrl : !importCsv)}
+              className="gradient-brand text-white px-6 py-2 rounded-xl font-semibold hover:opacity-90 disabled:opacity-50"
+            >
+              {importing ? "Importing..." : "Import Properties"}
+            </button>
+            <button onClick={() => setShowImport(false)} className="px-6 py-2 rounded-xl bg-gray-200 font-semibold hover:bg-gray-300">Cancel</button>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <form onSubmit={addProperty} className="bg-white rounded-2xl shadow-sm border p-6 mb-8 grid md:grid-cols-2 gap-4">
@@ -104,7 +209,9 @@ export default function PropertiesPage() {
           </div>
         ))}
         {properties.length === 0 && (
-          <div className="col-span-full text-center py-12 text-gray-400">No properties yet. Add your listings so the AI can recommend them.</div>
+          <div className="col-span-full text-center py-12 text-gray-400 bg-white rounded-2xl border">
+            No properties yet. Use &quot;Bulk Import&quot; to auto-import from your website, or &quot;+ Add Property&quot; to add manually.
+          </div>
         )}
       </div>
     </div>

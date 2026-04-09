@@ -18,6 +18,10 @@ export async function GET() {
     welcomeMessage: client.welcomeMessage,
     systemPrompt: client.systemPrompt,
     brandColor: client.brandColor,
+    notifyEmail: client.notifyEmail,
+    notifyOnLead: client.notifyOnLead,
+    calendarLink: client.calendarLink,
+    businessHours: client.businessHours,
   });
 }
 
@@ -30,13 +34,17 @@ export async function PUT(req: Request) {
 
   const body = await req.json();
 
-  const updated = await prisma.client.update({
+  await prisma.client.update({
     where: { id: clientId },
     data: {
       agentName: body.agentName,
       welcomeMessage: body.welcomeMessage,
       systemPrompt: body.systemPrompt,
       brandColor: body.brandColor,
+      notifyEmail: body.notifyEmail,
+      notifyOnLead: body.notifyOnLead,
+      calendarLink: body.calendarLink,
+      businessHours: body.businessHours,
     },
   });
 

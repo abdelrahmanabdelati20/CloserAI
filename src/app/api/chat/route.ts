@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
-// Demo config — used when database is unavailable (e.g., Vercel serverless)
 const DEMO_API_KEY = "cai_44d60f6ac0e849d78060792f010730ed";
 const DEMO_CONFIG = {
   agentName: "Sarah",
   businessName: "Sunshine Realty Group",
   welcomeMessage: "Hi there! I'm Sarah, your AI real estate assistant at Sunshine Realty.",
   systemPrompt: "",
+  calendarLink: "",
+  businessHours: "Monday-Friday 9am-6pm",
   properties: [
     { title: "Modern Downtown Condo", price: 485000, bedrooms: 2, bathrooms: 2, sqft: 1200, city: "Miami", propertyType: "condo", description: "Stunning 2-bedroom condo with panoramic city views, modern finishes, and rooftop pool access." },
     { title: "Family Home with Pool", price: 725000, bedrooms: 4, bathrooms: 3, sqft: 2800, city: "Miami", propertyType: "house", description: "Spacious 4-bedroom family home with a heated pool, 2-car garage, and updated kitchen." },
@@ -15,7 +16,6 @@ const DEMO_CONFIG = {
   ],
 };
 
-// In-memory conversation store for demo mode
 const demoConversations = new Map<string, Array<{ role: string; content: string }>>();
 
 function getAnthropicClient() {
@@ -24,45 +24,150 @@ function getAnthropicClient() {
   return new Anthropic({ apiKey: key });
 }
 
-function buildSystemPrompt(config: typeof DEMO_CONFIG, msgCount: number) {
-  const propertyContext = config.properties
-    .map((p, i) => `${i + 1}. "${p.title}" — $${p.price.toLocaleString()} | ${p.bedrooms}bd/${p.bathrooms}ba | ${p.sqft.toLocaleString()} sqft | ${p.city} | ${p.propertyType} | ${p.description}`)
-    .join("\n");
+function buildSystemPrompt(config: any, msgCount: number) {
+  const propertyContext = config.properties.length > 0
+    ? config.properties.map((p: any, i: number) => `${i + 1}. "${p.title}" — $${p.price.toLocaleString()} | ${p.bedrooms}bd/${p.bathrooms}ba | ${p.sqft.toLocaleString()} sqft | ${p.city} | ${p.propertyType} | ${p.description}`).join("\n")
+    : "No specific properties listed yet. Focus on understanding their needs and offering to show matching properties.";
 
   let stageHint = "";
-  if (msgCount === 0) stageHint = "\nSTAGE: Opening — warmly greet and ask one open-ended question.";
-  else if (msgCount <= 4) stageHint = "\nSTAGE: Discovery — learn needs. Ask about location, budget, timeline. Get their name.";
-  else if (msgCount <= 8) stageHint = "\nSTAGE: Qualification — get email or phone. Match with properties. Build excitement.";
-  else stageHint = "\nSTAGE: Closing — push for a callback or viewing. Get phone/email if you don't have it.";
+  if (msgCount === 0) stageHint = "\nSTAGE: Opening — warmly greet and ask one open-ended question about what they're looking for.";
+  else if (msgCount <= 4) stageHint = "\nSTAGE: Discovery — learn their needs (location, budget, timeline, property type). Get their first name.";
+  else if (msgCount <= 8) stageHint = "\nSTAGE: Qualification — get email or phone. Recommend 1-2 matching properties (never more). Ask about financing readiness.";
+  else stageHint = "\nSTAGE: Closing — push for a callback/viewing appointment. If you have calendar link, share it. Ask for phone if not yet captured.";
+
+  const bookingInfo = config.calendarLink
+    ? `\n\nBOOKING: When the visitor is ready to schedule, share this calendar link: ${config.calendarLink}`
+    : `\n\nBOOKING: Ask for their phone number to have an agent call them to schedule.`;
 
   return `You are ${config.agentName}, a top-performing AI real estate assistant for ${config.businessName}. You are warm, knowledgeable, genuinely helpful, and naturally persuasive.
 
 LANGUAGE RULE (CRITICAL):
-- ALWAYS detect what language the visitor is writing in
-- ALWAYS respond in the SAME language the visitor uses
-- If they write in Spanish, respond in Spanish. Arabic? Respond in Arabic. French? French. Chinese? Chinese. ANY language.
-- If they switch languages mid-conversation, switch with them
-- You speak ALL languages fluently — English, Spanish, Arabic, French, Portuguese, Chinese, Hindi, German, Italian, Russian, Japanese, Korean, Turkish, and many more
-- Default to English only if you cannot detect their language
+- ALWAYS detect the visitor's language and respond in the SAME language
+- You speak ALL languages fluently — English, Spanish, Arabic, French, Portuguese, Chinese, Hindi, German, Italian, Russian, Japanese, Korean, Turkish, etc.
+- Switch languages if they switch
 
-YOUR MISSION:
+YOUR MISSION (in priority order):
 1. BUILD RAPPORT — Make visitors feel heard and valued
-2. UNDERSTAND NEEDS — Buying, selling, renting? Budget? Location? Timeline?
-3. CAPTURE CONTACT INFO — Get name first, then email or phone naturally
-4. MATCH PROPERTIES — Recommend specific listings that fit
-5. DRIVE ACTION — Encourage scheduling a viewing or phone call
+2. UNDERSTAND NEEDS — Buying, selling, renting? Budget? Location? Timeline? Financing?
+3. CAPTURE CONTACT INFO — Get name first, then email, then phone
+4. MATCH PROPERTIES — Recommend 1-2 specific listings (NEVER more, causes decision paralysis)
+5. QUALIFY LEAD — Timeline (immediate/1-3mo/3-6mo/6+mo), pre-approval status
+6. DRIVE ACTION — Book appointment or get callback scheduled
+
+WHEN YOU CAPTURE INFORMATION, add these hidden tags at the END of your response:
+[LEAD_NAME: name]
+[LEAD_EMAIL: email]
+[LEAD_PHONE: phone]
+[LEAD_BUDGET: budget range]
+[LEAD_LOCATION: preferred area]
+[LEAD_TYPE: property type they want]
+[LEAD_TIMELINE: immediate|1-3 months|3-6 months|6+ months]
+[LEAD_PREAPPROVED: yes|no|unknown]
+
+LEAD SCORING (include at end when you have enough info):
+[LEAD_SCORE: 1-10]
+[LEAD_TEMP: hot|warm|cold]
+[LEAD_REASON: brief reason for the score]
+
+SCORING RULES:
+- HOT (8-10): Pre-approved, moving in <60 days, specific requirements, ready to book viewing
+- WARM (4-7): Researching seriously, 3-6 month timeline, budget clear
+- COLD (1-3): Just browsing, no timeline, vague interest
 
 RESPONSE STYLE:
-- 2-4 sentences max (chat, not essay)
+- Keep responses 2-4 sentences (chat, not essay)
 - Use their name once you know it
 - Ask ONE question at a time
-- Be conversational, not corporate
-- Create gentle urgency when appropriate
-- Show genuine enthusiasm
+- Show enthusiasm and create gentle urgency
+- Never recommend more than 2 properties at once
+- If they seem hot, push for immediate action (call/viewing)
+
+HANDLING SCENARIOS:
+- Asking about mortgage: Say you can connect them with the agent for financing details
+- Wants to sell: Express interest, ask about their property, offer free valuation
+- Off-topic: Acknowledge briefly, redirect to real estate
+- Frustrated: Apologize, offer to connect them with a human
+- Just browsing: "That's fine! What area or type catches your eye?"
+
+BUSINESS HOURS: ${config.businessHours}${bookingInfo}
+
+${config.systemPrompt ? `\nADDITIONAL INSTRUCTIONS:\n${config.systemPrompt}` : ""}
 
 AVAILABLE PROPERTIES:
 ${propertyContext}
 ${stageHint}`;
+}
+
+function extractAllInfo(text: string) {
+  const extract = (tag: string) => {
+    const match = text.match(new RegExp(`\\[${tag}:\\s*(.+?)\\]`));
+    return match ? match[1].trim() : null;
+  };
+  return {
+    name: extract("LEAD_NAME"),
+    email: extract("LEAD_EMAIL"),
+    phone: extract("LEAD_PHONE"),
+    budget: extract("LEAD_BUDGET"),
+    location: extract("LEAD_LOCATION"),
+    propertyType: extract("LEAD_TYPE"),
+    timeline: extract("LEAD_TIMELINE"),
+    preApproved: extract("LEAD_PREAPPROVED"),
+    score: extract("LEAD_SCORE"),
+    temperature: extract("LEAD_TEMP"),
+    scoreReason: extract("LEAD_REASON"),
+  };
+}
+
+function cleanResponse(text: string): string {
+  return text.replace(/\[LEAD_\w+:\s*.+?\]/g, "").replace(/\s{2,}/g, " ").trim();
+}
+
+async function sendLeadNotification(clientId: string, lead: any) {
+  // Try to send email notification to client
+  try {
+    const prisma = (await import("@/lib/db")).default;
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    if (!client || !client.notifyOnLead || !client.notifyEmail) return;
+
+    const emailApiKey = process.env.RESEND_API_KEY;
+    if (!emailApiKey) {
+      console.log("NEW LEAD NOTIFICATION (email service not configured):", lead);
+      return;
+    }
+
+    const tempEmoji = lead.temperature === "hot" ? "HOT" : lead.temperature === "warm" ? "WARM" : "COLD";
+    const html = `
+<h2>New Lead Captured! ${tempEmoji}</h2>
+<p>Your CloserAI chatbot just captured a new lead:</p>
+<table style="border-collapse:collapse;width:100%;max-width:500px">
+  <tr><td><strong>Name:</strong></td><td>${lead.name || "Not provided"}</td></tr>
+  <tr><td><strong>Email:</strong></td><td>${lead.email || "Not provided"}</td></tr>
+  <tr><td><strong>Phone:</strong></td><td>${lead.phone || "Not provided"}</td></tr>
+  <tr><td><strong>Budget:</strong></td><td>${lead.budget || "Not specified"}</td></tr>
+  <tr><td><strong>Location:</strong></td><td>${lead.location || "Not specified"}</td></tr>
+  <tr><td><strong>Property Type:</strong></td><td>${lead.propertyType || "Not specified"}</td></tr>
+  <tr><td><strong>Timeline:</strong></td><td>${lead.timeline || "Unknown"}</td></tr>
+  <tr><td><strong>Pre-Approved:</strong></td><td>${lead.preApproved || "Unknown"}</td></tr>
+  <tr><td><strong>Lead Score:</strong></td><td>${lead.score || "N/A"}/10 (${lead.temperature || "unknown"})</td></tr>
+  <tr><td><strong>Why:</strong></td><td>${lead.scoreReason || ""}</td></tr>
+</table>
+<p><strong>Action Required:</strong> ${lead.temperature === "hot" ? "Call this lead within 5 minutes!" : lead.temperature === "warm" ? "Follow up within 24 hours." : "Add to nurture sequence."}</p>
+<p>View full conversation in your <a href="https://closerai-app.vercel.app/dashboard">CloserAI Dashboard</a>.</p>
+`;
+
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${emailApiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: "CloserAI <leads@closerai-app.vercel.app>",
+        to: client.notifyEmail,
+        subject: `${tempEmoji} New ${lead.temperature || ""} lead: ${lead.name || "Website Visitor"}`,
+        html,
+      }),
+    });
+  } catch (e) {
+    console.error("Failed to send lead notification:", e);
+  }
 }
 
 export async function POST(req: Request) {
@@ -74,9 +179,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing apiKey or message" }, { status: 400 });
     }
 
-    // Try database first, fall back to demo mode
-    let config = DEMO_CONFIG;
+    let config: any = DEMO_CONFIG;
     let isDemoMode = true;
+    let clientId: string | null = null;
 
     try {
       const prisma = (await import("@/lib/db")).default;
@@ -85,85 +190,59 @@ export async function POST(req: Request) {
         include: { properties: { where: { status: "active" } } },
       });
       if (client && client.isActive) {
+        clientId = client.id;
         config = {
           agentName: client.agentName,
           businessName: client.businessName,
           welcomeMessage: client.welcomeMessage,
           systemPrompt: client.systemPrompt,
-          properties: client.properties.map((p) => ({
-            title: p.title,
-            price: p.price,
-            bedrooms: p.bedrooms,
-            bathrooms: p.bathrooms,
-            sqft: p.sqft,
-            city: p.city,
-            propertyType: p.propertyType,
-            description: p.description,
-          })),
+          calendarLink: client.calendarLink,
+          businessHours: client.businessHours,
+          properties: client.properties,
         };
         isDemoMode = false;
       } else if (!client && apiKey !== DEMO_API_KEY) {
-        // Client not found in database and not the demo key
         return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
       } else if (client && !client.isActive) {
         return NextResponse.json({ error: "Account deactivated. Please contact support." }, { status: 403 });
       }
     } catch {
-      // Database unavailable (Vercel serverless) — use demo mode
       if (apiKey !== DEMO_API_KEY) {
         return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
       }
     }
 
-    // Get or create conversation
     let convId = conversationId || `conv_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-
-    // Get conversation history
     let history = demoConversations.get(convId) || [];
-
-    // Add user message to history
     history.push({ role: "user", content: message });
 
-    // Build messages for Claude
-    const claudeMessages = history.map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
-    }));
-
+    const claudeMessages = history.map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
     const systemPrompt = buildSystemPrompt(config, history.length);
 
-    // Call Claude
     const anthropic = getAnthropicClient();
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 400,
+      max_tokens: 500,
       system: systemPrompt,
       messages: claudeMessages,
     });
 
     const aiText = response.content[0].type === "text" ? response.content[0].text : "";
+    const cleanedResponse = cleanResponse(aiText);
 
-    // Clean any lead tags from response
-    const cleanedResponse = aiText
-      .replace(/\[LEAD_\w+:\s*.+?\]/g, "")
-      .replace(/\s{2,}/g, " ")
-      .trim();
-
-    // Save to history
     history.push({ role: "assistant", content: cleanedResponse });
     demoConversations.set(convId, history);
 
-    // If not demo mode, save to database
-    if (!isDemoMode) {
+    // Save to database if not demo mode
+    if (!isDemoMode && clientId) {
       try {
         const prisma = (await import("@/lib/db")).default;
         const { v4: uuidv4 } = await import("uuid");
-        const { extractLeadInfo } = await import("@/lib/ai");
 
         let dbConvId = conversationId;
         if (!dbConvId) {
           const conv = await prisma.conversation.create({
-            data: { id: uuidv4(), clientId: (await prisma.client.findUnique({ where: { apiKey } }))!.id, visitorName: "Website Visitor" },
+            data: { id: uuidv4(), clientId, visitorName: "Website Visitor" },
           });
           dbConvId = conv.id;
         }
@@ -171,35 +250,51 @@ export async function POST(req: Request) {
         await prisma.message.create({ data: { id: uuidv4(), conversationId: dbConvId, role: "user", content: message } });
         await prisma.message.create({ data: { id: uuidv4(), conversationId: dbConvId, role: "assistant", content: cleanedResponse } });
 
-        // Extract and save lead info
-        const leadInfo = extractLeadInfo(aiText);
-        const hasLeadInfo = Object.values(leadInfo).some((v) => v !== null);
+        const info = extractAllInfo(aiText);
+        const hasLeadInfo = info.name || info.email || info.phone;
+
         if (hasLeadInfo) {
-          const client = await prisma.client.findUnique({ where: { apiKey } });
-          if (client) {
-            const existingLead = await prisma.lead.findFirst({ where: { clientId: client.id, conversations: { some: { id: dbConvId } } } });
-            if (existingLead) {
-              await prisma.lead.update({ where: { id: existingLead.id }, data: { name: leadInfo.name || existingLead.name, email: leadInfo.email || existingLead.email, phone: leadInfo.phone || existingLead.phone, budget: leadInfo.budget || existingLead.budget, location: leadInfo.location || existingLead.location, propertyType: leadInfo.propertyType || existingLead.propertyType } });
-            } else {
-              const lead = await prisma.lead.create({ data: { id: uuidv4(), clientId: client.id, name: leadInfo.name || "", email: leadInfo.email || "", phone: leadInfo.phone || "", budget: leadInfo.budget || "", location: leadInfo.location || "", propertyType: leadInfo.propertyType || "" } });
-              await prisma.conversation.update({ where: { id: dbConvId }, data: { leadId: lead.id, visitorName: leadInfo.name || "Website Visitor" } });
+          const existingLead = await prisma.lead.findFirst({
+            where: { clientId, conversations: { some: { id: dbConvId } } },
+          });
+
+          const leadData = {
+            name: info.name || existingLead?.name || "",
+            email: info.email || existingLead?.email || "",
+            phone: info.phone || existingLead?.phone || "",
+            budget: info.budget || existingLead?.budget || "",
+            location: info.location || existingLead?.location || "",
+            propertyType: info.propertyType || existingLead?.propertyType || "",
+            timeline: info.timeline || existingLead?.timeline || "",
+            preApproved: info.preApproved === "yes" || (existingLead?.preApproved ?? false),
+            score: info.score ? parseInt(info.score) : (existingLead?.score || 0),
+            temperature: info.temperature || existingLead?.temperature || "cold",
+            scoreReason: info.scoreReason || existingLead?.scoreReason || "",
+          };
+
+          let lead;
+          if (existingLead) {
+            lead = await prisma.lead.update({ where: { id: existingLead.id }, data: leadData });
+          } else {
+            lead = await prisma.lead.create({ data: { id: uuidv4(), clientId, ...leadData } });
+            await prisma.conversation.update({ where: { id: dbConvId }, data: { leadId: lead.id, visitorName: info.name || "Website Visitor" } });
+            // Send notification for new hot/warm leads
+            if (info.temperature === "hot" || info.temperature === "warm") {
+              await sendLeadNotification(clientId, lead);
             }
           }
         }
 
         convId = dbConvId;
-      } catch {
-        // Database write failed, but response still goes through
+      } catch (e) {
+        console.error("DB save error:", e);
       }
     }
 
-    const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    };
-
-    return NextResponse.json({ conversationId: convId, message: cleanedResponse }, { headers });
+    return NextResponse.json(
+      { conversationId: convId, message: cleanedResponse },
+      { headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } }
+    );
   } catch (error: any) {
     console.error("Chat API Error:", error);
     return NextResponse.json(
