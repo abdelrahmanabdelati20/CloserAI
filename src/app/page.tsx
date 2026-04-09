@@ -119,8 +119,15 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen">
+      {/* TRIAL BANNER */}
+      <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-center py-2.5 text-sm font-semibold fixed top-0 w-full z-50">
+        <Link href="/free-trial" className="hover:underline">
+          LIMITED TIME: Get your AI assistant FREE for 14 days — No credit card required &rarr;
+        </Link>
+      </div>
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-100">
+      <nav className="fixed top-10 w-full bg-white/90 backdrop-blur-md z-40 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center">
@@ -133,17 +140,17 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-gray-600 hover:text-brand-600 transition">Features</a>
             <a href="#pricing" className="text-gray-600 hover:text-brand-600 transition">Pricing</a>
-            <a href="#demo" className="text-gray-600 hover:text-brand-600 transition">Demo</a>
+            <a href="/demo" className="text-gray-600 hover:text-brand-600 transition">Demo</a>
             <Link href="/login" className="text-gray-600 hover:text-brand-600 transition">Login</Link>
-            <a href="#pricing" className="gradient-brand text-white px-5 py-2 rounded-lg font-medium hover:opacity-90 transition">
-              Get Started
-            </a>
+            <Link href="/free-trial" className="gradient-brand text-white px-5 py-2 rounded-lg font-medium hover:opacity-90 transition">
+              Free Trial
+            </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
+      <section className="pt-44 pb-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <div className="inline-block mb-6 px-4 py-1 bg-brand-50 text-brand-700 rounded-full text-sm font-medium">
             Trusted by 500+ Real Estate Professionals
@@ -158,8 +165,8 @@ export default function LandingPage() {
             converts website visitors into ready-to-close leads — while you sleep.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <a href="/get-started" className="gradient-brand text-white px-8 py-4 rounded-xl text-lg font-semibold hover:opacity-90 transition shadow-lg shadow-brand-600/25">
-              Start Converting Leads Today
+            <a href="/free-trial" className="gradient-brand text-white px-8 py-4 rounded-xl text-lg font-semibold hover:opacity-90 transition shadow-lg shadow-brand-600/25">
+              Start Free 14-Day Trial
             </a>
             <a href="/demo" className="border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl text-lg font-semibold hover:border-brand-300 transition">
               See Live Demo
