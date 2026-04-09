@@ -34,6 +34,20 @@ export async function PUT(req: Request) {
 
   const body = await req.json();
 
+  // Validate field lengths
+  if (body.systemPrompt && body.systemPrompt.length > 2000) {
+    return NextResponse.json({ error: "Custom instructions too long (max 2000 characters)" }, { status: 400 });
+  }
+  if (body.welcomeMessage && body.welcomeMessage.length > 500) {
+    return NextResponse.json({ error: "Welcome message too long (max 500 characters)" }, { status: 400 });
+  }
+  if (body.agentName && body.agentName.length > 50) {
+    return NextResponse.json({ error: "Agent name too long (max 50 characters)" }, { status: 400 });
+  }
+  if (body.brandColor && !/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(body.brandColor)) {
+    return NextResponse.json({ error: "Invalid brand color format (must be hex)" }, { status: 400 });
+  }
+
   await prisma.client.update({
     where: { id: clientId },
     data: {

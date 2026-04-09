@@ -18,12 +18,21 @@
   var isOpen = false;
   var isLoading = false;
 
+  // Validate hex color to prevent CSS injection
+  function isValidHexColor(color) {
+    return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(color);
+  }
+
   // Load widget config
   function loadConfig() {
     fetch(BASE_URL + "/api/widget/config?key=" + API_KEY)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.error) { console.error("CloserAI: " + data.error); return; }
+        // Sanitize brand color to prevent CSS injection
+        if (!data.brandColor || !isValidHexColor(data.brandColor)) {
+          data.brandColor = "#2563eb";
+        }
         config = data;
         init();
       })

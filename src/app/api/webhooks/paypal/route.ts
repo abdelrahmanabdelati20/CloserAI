@@ -16,13 +16,15 @@ async function sendWelcomeEmail(email: string, name: string, password: string, a
     return;
   }
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://closerai-app.vercel.app";
+
   const html = `
 <h1>Welcome to CloserAI, ${name}!</h1>
 <p>Your payment was successful and your account is ready.</p>
 
 <h2>Your Login Details:</h2>
 <p>
-<strong>Login URL:</strong> <a href="https://closerai-app.vercel.app/login">https://closerai-app.vercel.app/login</a><br>
+<strong>Login URL:</strong> <a href="${appUrl}/login">${appUrl}/login</a><br>
 <strong>Email:</strong> ${email}<br>
 <strong>Password:</strong> ${password}
 </p>
@@ -30,7 +32,7 @@ async function sendWelcomeEmail(email: string, name: string, password: string, a
 
 <h2>Your Widget Code (copy this to your website):</h2>
 <pre style="background:#f4f4f4;padding:15px;border-radius:5px">
-&lt;script src="https://closerai-app.vercel.app/widget.js" data-api-key="${apiKey}"&gt;&lt;/script&gt;
+&lt;script src="${appUrl}/widget.js" data-api-key="${apiKey}"&gt;&lt;/script&gt;
 </pre>
 
 <h2>Next Steps:</h2>

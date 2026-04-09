@@ -38,7 +38,10 @@ model Client {
 
   // PayPal Subscription
   paypalSubId     String?   // PayPal subscription ID
-  paypalStatus    String    @default("pending") // active, suspended, cancelled, pending
+  paypalStatus    String    @default("pending") // active, suspended, cancelled, pending, trial, expired_trial
+
+  // Trial management
+  trialEndsAt     DateTime? // When the free trial expires (null = not a trial)
 
   // AI Configuration
   agentName       String    @default("AI Assistant")

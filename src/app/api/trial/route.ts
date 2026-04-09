@@ -11,6 +11,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Name, email, and business name are required" }, { status: 400 });
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 });
+    }
+
+    if (name.length > 100 || businessName.length > 200) {
+      return NextResponse.json({ error: "Name or business name too long" }, { status: 400 });
+    }
+
     // Try to create in database
     try {
       const prisma = (await import("@/lib/db")).default;
@@ -29,6 +37,9 @@ export async function POST(req: Request) {
       const apiKey = `cai_${uuidv4().replace(/-/g, "")}`;
 
       // Create trial account (14 days)
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
       await prisma.user.create({
         data: {
           id: uuidv4(),
@@ -47,6 +58,7 @@ export async function POST(req: Request) {
               monthlyLimit: 500,
               isActive: true,
               paypalStatus: "trial",
+              trialEndsAt,
               notifyEmail: email,
               agentName: "Alex",
               welcomeMessage: `Hi! I'm Alex from ${businessName}. Looking to buy, sell, or just exploring? I'd love to help!`,

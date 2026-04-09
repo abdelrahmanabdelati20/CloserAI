@@ -19,13 +19,30 @@ export async function GET(req: Request) {
   // Try database first, fall back to demo
   try {
     const prisma = (await import("@/lib/db")).default;
+    const { checkTrialStatus } = await import("@/lib/trial");
     const client = await prisma.client.findUnique({
       where: { apiKey },
-      select: { agentName: true, welcomeMessage: true, brandColor: true, businessName: true, isActive: true },
+      select: {
+        id: true,
+        agentName: true,
+        welcomeMessage: true,
+        brandColor: true,
+        businessName: true,
+        isActive: true
+      },
     });
 
     if (client) {
-      if (!client.isActive) return NextResponse.json({ error: "Account deactivated" }, { status: 403 });
+      // Check trial expiry
+      const trialStatus = await checkTrialStatus(client.id);
+
+      if (trialStatus.expired) {
+        return NextResponse.json({ error: "Trial expired" }, { status: 403 });
+      }
+      if (!trialStatus.isActive) {
+        return NextResponse.json({ error: "Account deactivated" }, { status: 403 });
+      }
+
       return NextResponse.json({
         agentName: client.agentName,
         welcomeMessage: client.welcomeMessage,

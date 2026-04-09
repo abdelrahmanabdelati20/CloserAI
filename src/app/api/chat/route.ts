@@ -185,11 +185,62 @@ export async function POST(req: Request) {
 
     try {
       const prisma = (await import("@/lib/db")).default;
+      const { checkTrialStatus } = await import("@/lib/trial");
       const client = await prisma.client.findUnique({
         where: { apiKey },
         include: { properties: { where: { status: "active" } } },
       });
-      if (client && client.isActive) {
+
+      if (!client && apiKey !== DEMO_API_KEY) {
+        return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+      }
+
+      if (client) {
+        // Check trial expiry first — auto-deactivate if expired
+        const trialStatus = await checkTrialStatus(client.id);
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://closerai-app.vercel.app";
+
+        if (trialStatus.expired) {
+          return NextResponse.json({
+            error: "Trial expired. Please subscribe to continue.",
+            trialExpired: true,
+            subscribeUrl: `${appUrl}/trial-expired`
+          }, { status: 403 });
+        }
+
+        if (!trialStatus.isActive) {
+          return NextResponse.json({ error: "Account deactivated. Please contact support." }, { status: 403 });
+        }
+
+        // CRITICAL: Enforce monthly usage limit
+        // Reset counter if we're in a new billing month
+        const now = new Date();
+        const resetDate = new Date(client.usageResetDate);
+        const daysSinceReset = Math.floor((now.getTime() - resetDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (daysSinceReset >= 30) {
+          // Reset monthly counter
+          await prisma.client.update({
+            where: { id: client.id },
+            data: { usageThisMonth: 0, usageResetDate: now },
+          });
+          client.usageThisMonth = 0;
+        }
+
+        if (client.usageThisMonth >= client.monthlyLimit) {
+          return NextResponse.json({
+            error: "Monthly conversation limit reached. Please upgrade your plan.",
+            limitReached: true,
+            upgradeUrl: `${appUrl}/pricing`
+          }, { status: 429 });
+        }
+
+        // Increment usage counter (async, don't await)
+        prisma.client.update({
+          where: { id: client.id },
+          data: { usageThisMonth: { increment: 1 } },
+        }).catch(() => {});
+
         clientId = client.id;
         config = {
           agentName: client.agentName,
@@ -201,10 +252,6 @@ export async function POST(req: Request) {
           properties: client.properties,
         };
         isDemoMode = false;
-      } else if (!client && apiKey !== DEMO_API_KEY) {
-        return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
-      } else if (client && !client.isActive) {
-        return NextResponse.json({ error: "Account deactivated. Please contact support." }, { status: 403 });
       }
     } catch {
       if (apiKey !== DEMO_API_KEY) {
