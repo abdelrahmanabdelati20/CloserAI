@@ -53,27 +53,9 @@ const PLANS = [
 
 const STATS = [
   { value: "24/7", label: "Always Online" },
-  { value: "3x", label: "More Leads Captured" },
+  { value: "50+", label: "Languages" },
   { value: "<2s", label: "Response Time" },
-  { value: "89%", label: "Lead Satisfaction" },
-];
-
-const TESTIMONIALS = [
-  {
-    name: "Sarah Mitchell",
-    role: "Broker, Premier Realty Group",
-    text: "CloserAI doubled our lead conversion in the first month. It's like having a top agent working the phones 24/7.",
-  },
-  {
-    name: "James Rodriguez",
-    role: "Team Lead, Coastal Properties",
-    text: "We were losing leads at night and on weekends. CloserAI captures every single one now. Best investment we've made.",
-  },
-  {
-    name: "Amanda Chen",
-    role: "Owner, Pacific Heights Real Estate",
-    text: "The AI knows our listings inside and out. Clients are amazed at how quickly they get matched with the perfect property.",
-  },
+  { value: "5 min", label: "Setup Time" },
 ];
 
 // Demo uses the real AI — powered by Claude
@@ -152,8 +134,8 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="pt-44 pb-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-block mb-6 px-4 py-1 bg-brand-50 text-brand-700 rounded-full text-sm font-medium">
-            Trusted by 500+ Real Estate Professionals
+          <div className="inline-block mb-6 px-4 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+            14-Day Free Trial · No Credit Card Required
           </div>
           <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
             Never Lose Another
@@ -222,8 +204,8 @@ export default function LandingPage() {
               },
               {
                 icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-                title: "ROI Guaranteed",
-                desc: "On average, our clients see 3x more leads captured and 40% higher conversion rates. The AI pays for itself within the first week.",
+                title: "Risk-Free Trial",
+                desc: "14 days free, no credit card required. Test it on your own website, see if it captures more leads, then decide. Cancel anytime.",
               },
             ].map((f) => (
               <div key={f.title} className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition">
@@ -307,29 +289,37 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Built for Real Estate Section */}
       <section className="py-20 px-6 bg-brand-950 text-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Loved by Top Real Estate Professionals</h2>
+            <h2 className="text-4xl font-bold mb-4">Built Specifically for Real Estate</h2>
+            <p className="text-white/70 text-lg max-w-2xl mx-auto">
+              Not a generic chatbot. Every feature is designed for how real estate agents actually work.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-white/80 mb-6 italic">&ldquo;{t.text}&rdquo;</p>
-                <div>
-                  <div className="font-semibold">{t.name}</div>
-                  <div className="text-white/50 text-sm">{t.role}</div>
-                </div>
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
               </div>
-            ))}
+              <h3 className="text-xl font-bold mb-2">Property Matching AI</h3>
+              <p className="text-white/70">AI knows your listings inside-out. When visitors describe what they want, it recommends the perfect match automatically.</p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Hot Lead Scoring</h3>
+              <p className="text-white/70">AI automatically scores every lead as hot, warm, or cold based on timeline, budget, and pre-approval status. Know who to call first.</p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" /></svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">50+ Languages</h3>
+              <p className="text-white/70">Automatically detects and responds in Spanish, Chinese, French, Arabic, and 46 other languages. Perfect for international buyers.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -393,13 +383,13 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-20 px-6 gradient-brand">
         <div className="max-w-3xl mx-auto text-center text-white">
-          <h2 className="text-4xl font-bold mb-6">Ready to 3x Your Real Estate Leads?</h2>
+          <h2 className="text-4xl font-bold mb-6">Stop Losing Leads While You Sleep</h2>
           <p className="text-xl text-white/80 mb-10">
-            Join hundreds of top-performing agents and brokerages already using CloserAI.
-            Set up in 5 minutes. See results in 24 hours.
+            Install CloserAI on your website in 5 minutes. Your AI assistant starts
+            capturing leads 24/7 immediately. Free for 14 days, no credit card required.
           </p>
           <a
-            href="/get-started"
+            href="/free-trial"
             className="inline-block bg-white text-brand-700 px-10 py-4 rounded-xl text-lg font-bold hover:bg-gray-100 transition shadow-xl"
           >
             Start Your Free Trial

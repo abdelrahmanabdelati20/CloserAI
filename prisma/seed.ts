@@ -60,7 +60,7 @@ async function main() {
       },
     });
 
-    // Add demo properties
+    // Add demo properties (must match /demo page UI)
     const client = await prisma.client.findFirst({ where: { userId: demoUser.id } });
     if (client) {
       await prisma.property.createMany({
@@ -86,7 +86,7 @@ async function main() {
             description: "Spacious 4-bedroom family home with a heated pool, 2-car garage, and updated kitchen.",
             price: 725000,
             address: "456 Oak Avenue",
-            city: "Miami",
+            city: "Coral Gables",
             bedrooms: 4,
             bathrooms: 3,
             sqft: 2800,
@@ -105,6 +105,48 @@ async function main() {
             bathrooms: 4,
             sqft: 4500,
             propertyType: "house",
+            status: "active",
+          },
+          {
+            id: uuidv4(),
+            clientId: client.id,
+            title: "Beachfront Penthouse",
+            description: "Luxury 3-bedroom penthouse with panoramic ocean views, private terrace, and 24/7 concierge service.",
+            price: 1485000,
+            address: "1000 Collins Avenue, PH1",
+            city: "South Beach",
+            bedrooms: 3,
+            bathrooms: 3,
+            sqft: 2100,
+            propertyType: "condo",
+            status: "active",
+          },
+          {
+            id: uuidv4(),
+            clientId: client.id,
+            title: "Charming Coconut Grove",
+            description: "Charming 3-bedroom home with tropical garden, mature trees, and walking distance to the marina.",
+            price: 895000,
+            address: "2525 Bayshore Lane",
+            city: "Coconut Grove",
+            bedrooms: 3,
+            bathrooms: 2,
+            sqft: 2200,
+            propertyType: "house",
+            status: "active",
+          },
+          {
+            id: uuidv4(),
+            clientId: client.id,
+            title: "Contemporary Brickell Loft",
+            description: "Modern 2-bedroom loft with floor-to-ceiling windows, building amenities, and valet parking.",
+            price: 625000,
+            address: "45 SW 9th Street, Unit 2305",
+            city: "Brickell",
+            bedrooms: 2,
+            bathrooms: 2,
+            sqft: 1500,
+            propertyType: "condo",
             status: "active",
           },
         ],

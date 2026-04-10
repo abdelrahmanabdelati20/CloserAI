@@ -11,8 +11,11 @@ const DEMO_CONFIG = {
   businessHours: "Monday-Friday 9am-6pm",
   properties: [
     { title: "Modern Downtown Condo", price: 485000, bedrooms: 2, bathrooms: 2, sqft: 1200, city: "Miami", propertyType: "condo", description: "Stunning 2-bedroom condo with panoramic city views, modern finishes, and rooftop pool access." },
-    { title: "Family Home with Pool", price: 725000, bedrooms: 4, bathrooms: 3, sqft: 2800, city: "Miami", propertyType: "house", description: "Spacious 4-bedroom family home with a heated pool, 2-car garage, and updated kitchen." },
+    { title: "Family Home with Pool", price: 725000, bedrooms: 4, bathrooms: 3, sqft: 2800, city: "Coral Gables", propertyType: "house", description: "Spacious 4-bedroom family home with a heated pool, 2-car garage, and updated kitchen." },
     { title: "Luxury Waterfront Villa", price: 2150000, bedrooms: 5, bathrooms: 4, sqft: 4500, city: "Miami Beach", propertyType: "house", description: "Breathtaking 5-bedroom waterfront villa with private dock, infinity pool, and smart home features." },
+    { title: "Beachfront Penthouse", price: 1485000, bedrooms: 3, bathrooms: 3, sqft: 2100, city: "South Beach", propertyType: "condo", description: "Luxury 3-bedroom penthouse with panoramic ocean views, private terrace, and 24/7 concierge service." },
+    { title: "Charming Coconut Grove", price: 895000, bedrooms: 3, bathrooms: 2, sqft: 2200, city: "Coconut Grove", propertyType: "house", description: "Charming 3-bedroom home with tropical garden, mature trees, and walking distance to the marina." },
+    { title: "Contemporary Brickell Loft", price: 625000, bedrooms: 2, bathrooms: 2, sqft: 1500, city: "Brickell", propertyType: "condo", description: "Modern 2-bedroom loft with floor-to-ceiling windows, building amenities, and valet parking." },
   ],
 };
 
