@@ -7,9 +7,9 @@ import Link from "next/link";
 const PAYPAL_CLIENT_ID = "Ad0tNNgcXsJVUzrp2izuKq15cT4tCAAyEw6UqNIrKNwNMcHARRgQhqpwSUScL7B2dCnQ0UyvlFVuBZEw";
 
 const PLANS = [
-  { id: "starter", planId: "P-1LK62020A02608326NHLKVJI", name: "Starter", price: 297, features: ["1 Website", "1,000 conversations/mo", "Lead capture", "50+ Languages", "Email support"] },
-  { id: "professional", planId: "P-97J20105C8054843BNHLKWRQ", name: "Professional", price: 597, features: ["5 Websites", "3,000 conversations/mo", "Priority support (24h)", "Property matching AI", "CRM integration"], popular: true },
-  { id: "enterprise", planId: "P-7UV62933RP089234PNHLKXMA", name: "Enterprise", price: 1297, features: ["Unlimited Widgets", "10,000 conversations/mo", "Custom training", "Dedicated manager", "White-label"] },
+  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", price: 297, features: ["1 Website", "1,000 conversations/mo", "Lead capture", "50+ Languages", "Email support"] },
+  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", price: 597, features: ["5 Websites", "3,000 conversations/mo", "Priority support (24h)", "Property matching AI", "CRM integration"], popular: true },
+  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", price: 1297, features: ["Unlimited Widgets", "10,000 conversations/mo", "Custom training", "Dedicated manager", "White-label"] },
 ];
 
 export default function TrialExpiredPage() {

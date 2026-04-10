@@ -5,15 +5,15 @@ import { v4 as uuidv4 } from "uuid";
 import { createNotification } from "@/lib/notifications";
 
 const PLAN_PRICES: Record<string, number> = {
-  "P-1LK62020A02608326NHLKVJI": 297,
-  "P-97J20105C8054843BNHLKWRQ": 597,
-  "P-7UV62933RP089234PNHLKXMA": 1297,
+  "P-3ME68261TF865700ANHMV6VA": 297,
+  "P-2MY58249L8606483BNHMWLZI": 597,
+  "P-25E55064LR4216211NHMWNOA": 1297,
 };
 
 const PLANS: Record<string, { limit: number; name: string }> = {
-  "P-1LK62020A02608326NHLKVJI": { limit: 1000, name: "starter" },
-  "P-97J20105C8054843BNHLKWRQ": { limit: 3000, name: "professional" },
-  "P-7UV62933RP089234PNHLKXMA": { limit: 10000, name: "enterprise" },
+  "P-3ME68261TF865700ANHMV6VA": { limit: 1000, name: "starter" },
+  "P-2MY58249L8606483BNHMWLZI": { limit: 3000, name: "professional" },
+  "P-25E55064LR4216211NHMWNOA": { limit: 10000, name: "enterprise" },
 };
 
 async function sendWelcomeEmail(email: string, name: string, password: string, apiKey: string) {
