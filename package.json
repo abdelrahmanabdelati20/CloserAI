@@ -11,7 +11,11 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "setup": "npm install && npx prisma db push && npm run db:seed"
+    "setup": "npm install && npx prisma db push && npm run db:seed",
+    "verify": "node scripts/verify-deploy.js",
+    "verify:local": "node scripts/verify-deploy.js http://localhost:3000",
+    "deploy": "node scripts/safe-deploy.js",
+    "deploy:quick": "npx vercel --prod --yes && npm run verify"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
