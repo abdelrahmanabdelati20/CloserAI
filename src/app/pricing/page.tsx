@@ -162,7 +162,9 @@ export default function PricingPage() {
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
           {PLANS.map((plan) => {
             const displayPrice = billing === "monthly" ? plan.monthly : Math.round(plan.annual / 12);
-            const billedAs = billing === "annual" ? `$${plan.annual.toLocaleString()} billed annually` : "Billed monthly";
+            // Use explicit en-US locale to prevent server/client hydration mismatch
+            const formatNum = (n: number) => n.toLocaleString("en-US");
+            const billedAs = billing === "annual" ? `$${formatNum(plan.annual)} billed annually` : "Billed monthly";
             const savings = billing === "annual" ? plan.monthly * 12 - plan.annual : 0;
 
             return (
@@ -191,7 +193,7 @@ export default function PricingPage() {
                 </div>
                 {savings > 0 ? (
                   <div className={`text-xs font-bold mb-6 ${plan.popular ? "text-yellow-300" : "text-green-600"}`}>
-                    💰 Save ${savings.toLocaleString()}/year
+                    💰 Save ${formatNum(savings)}/year
                   </div>
                 ) : (
                   <div className="mb-6 h-4"></div>

@@ -450,7 +450,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm">
-            <div>&copy; {new Date().getFullYear()} CloserAI. All rights reserved.</div>
+            <div>&copy; 2026 CloserAI. All rights reserved.</div>
             <div>Built for real estate agents worldwide.</div>
           </div>
         </div>
