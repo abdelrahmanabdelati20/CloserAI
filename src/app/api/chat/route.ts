@@ -21,6 +21,58 @@ const DEMO_CONFIG = {
 
 const demoConversations = new Map<string, Array<{ role: string; content: string }>>();
 
+/**
+ * Detect language from text based on Unicode ranges.
+ * Returns the language name or null if uncertain (let Claude auto-detect).
+ */
+function detectLanguage(text: string): string | null {
+  if (!text) return null;
+
+  // Count characters in different Unicode ranges
+  const chars = text.split("");
+  let chineseCount = 0;
+  let arabicCount = 0;
+  let devanagariCount = 0; // Hindi, Marathi, Sanskrit, etc.
+  let hangulCount = 0; // Korean
+  let hiraganaCount = 0; // Japanese
+  let katakanaCount = 0; // Japanese
+  let cjkKanjiCount = 0; // Could be Chinese or Japanese Kanji
+  let cyrillicCount = 0; // Russian, Ukrainian, etc.
+  let hebrewCount = 0;
+  let thaiCount = 0;
+  let greekCount = 0;
+
+  for (const ch of chars) {
+    const code = ch.charCodeAt(0);
+    if (code >= 0x4e00 && code <= 0x9fff) cjkKanjiCount++;
+    else if (code >= 0x3040 && code <= 0x309f) hiraganaCount++;
+    else if (code >= 0x30a0 && code <= 0x30ff) katakanaCount++;
+    else if (code >= 0xac00 && code <= 0xd7af) hangulCount++;
+    else if (code >= 0x0600 && code <= 0x06ff) arabicCount++;
+    else if (code >= 0x0750 && code <= 0x077f) arabicCount++;
+    else if (code >= 0x0900 && code <= 0x097f) devanagariCount++;
+    else if (code >= 0x0400 && code <= 0x04ff) cyrillicCount++;
+    else if (code >= 0x0590 && code <= 0x05ff) hebrewCount++;
+    else if (code >= 0x0e00 && code <= 0x0e7f) thaiCount++;
+    else if (code >= 0x0370 && code <= 0x03ff) greekCount++;
+  }
+
+  // Japanese has hiragana or katakana (even mixed with kanji)
+  if (hiraganaCount > 0 || katakanaCount > 0) return "Japanese";
+  // Pure CJK Kanji without Japanese hiragana/katakana → Chinese
+  if (cjkKanjiCount > 0) return "Chinese (Mandarin)";
+  if (hangulCount > 0) return "Korean";
+  if (arabicCount > 0) return "Arabic";
+  if (devanagariCount > 0) return "Hindi";
+  if (cyrillicCount > 0) return "Russian";
+  if (hebrewCount > 0) return "Hebrew";
+  if (thaiCount > 0) return "Thai";
+  if (greekCount > 0) return "Greek";
+
+  // Latin scripts — let Claude detect subtle differences (Spanish vs French vs English vs German etc.)
+  return null;
+}
+
 function getAnthropicClient() {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("ANTHROPIC_API_KEY not configured");
@@ -469,7 +521,13 @@ export async function POST(req: Request) {
     history.push({ role: "user", content: message });
 
     const claudeMessages = history.map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
-    const systemPrompt = buildSystemPrompt(config, history.length);
+
+    // Detect language from user's message and prepend instruction to system prompt
+    const detectedLang = detectLanguage(message);
+    let systemPrompt = buildSystemPrompt(config, history.length);
+    if (detectedLang) {
+      systemPrompt = `CRITICAL LANGUAGE INSTRUCTION: The visitor is writing in ${detectedLang}. You MUST respond entirely in ${detectedLang}. Do not use any other language. All of your response text must be in ${detectedLang}.\n\n${systemPrompt}`;
+    }
 
     // Call Claude with retry logic for overload errors
     const anthropic = getAnthropicClient();
