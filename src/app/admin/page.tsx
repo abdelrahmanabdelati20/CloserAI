@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface Stats {
   totalClients: number;
@@ -18,16 +19,46 @@ interface Stats {
   }>;
 }
 
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  metadata: Record<string, any>;
+  read: boolean;
+  createdAt: string;
+}
+
 export default function AdminOverview() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/stats")
-      .then((r) => r.json())
-      .then(setStats)
+    Promise.all([
+      fetch("/api/admin/stats").then((r) => r.json()),
+      fetch("/api/admin/notifications").then((r) => r.json()),
+    ])
+      .then(([statsData, notifData]) => {
+        setStats(statsData);
+        setNotifications((notifData.notifications || []).slice(0, 5));
+        setUnreadCount(notifData.unreadCount || 0);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    // Auto-refresh notifications every 15 seconds
+    const interval = setInterval(() => {
+      fetch("/api/admin/notifications")
+        .then((r) => r.json())
+        .then((data) => {
+          setNotifications((data.notifications || []).slice(0, 5));
+          setUnreadCount(data.unreadCount || 0);
+        })
+        .catch(() => {});
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -61,6 +92,69 @@ export default function AdminOverview() {
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white mb-8">
         <div className="text-sm text-white/70 mb-1">Estimated Monthly Revenue</div>
         <div className="text-4xl font-bold">${stats.monthlyRevenue.toLocaleString()}/mo</div>
+      </div>
+
+      {/* Recent Activity / Notifications */}
+      <div className="bg-white rounded-2xl shadow-sm border mb-8">
+        <div className="p-6 border-b flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold">Recent Activity</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {unreadCount > 0 ? (
+                <span className="text-red-600 font-semibold">{unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}</span>
+              ) : (
+                "All caught up"
+              )}
+            </p>
+          </div>
+          <Link
+            href="/admin/notifications"
+            className="text-sm text-brand-600 hover:underline font-medium"
+          >
+            View all →
+          </Link>
+        </div>
+        <div className="divide-y">
+          {notifications.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="text-4xl mb-2">🔔</div>
+              <p className="text-gray-500">No activity yet. You&apos;ll see trial signups and payments here.</p>
+            </div>
+          ) : (
+            notifications.map((n) => {
+              const icons: Record<string, string> = {
+                trial_signup: "🎯",
+                new_payment: "💰",
+                payment_failed: "⚠️",
+                trial_expired: "⏰",
+                new_lead: "👤",
+                subscription_cancelled: "👋",
+              };
+              const now = new Date();
+              const created = new Date(n.createdAt);
+              const diffMin = Math.floor((now.getTime() - created.getTime()) / 60000);
+              const timeAgo = diffMin < 1 ? "just now" : diffMin < 60 ? `${diffMin}m ago` : diffMin < 1440 ? `${Math.floor(diffMin / 60)}h ago` : `${Math.floor(diffMin / 1440)}d ago`;
+
+              return (
+                <div key={n.id} className={`p-4 flex items-start gap-3 ${!n.read ? "bg-blue-50/30" : ""}`}>
+                  <div className="text-2xl">{icons[n.type] || "🔔"}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className={`font-semibold text-sm ${!n.read ? "text-gray-900" : "text-gray-700"}`}>
+                        {n.title}
+                      </h3>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {!n.read && <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />}
+                        <span className="text-xs text-gray-400">{timeAgo}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{n.message}</p>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
       {/* Recent Clients */}

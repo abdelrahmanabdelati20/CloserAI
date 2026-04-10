@@ -67,6 +67,23 @@ export async function POST(req: Request) {
         },
       });
 
+      // Create notification for admin
+      const { createNotification } = await import("@/lib/notifications");
+      await createNotification({
+        type: "trial_signup",
+        title: `New trial signup: ${name}`,
+        message: `${name} from ${businessName} just started their 14-day free trial. Reach out within 24 hours for the highest conversion rate!`,
+        metadata: {
+          Name: name,
+          Email: email,
+          Phone: phone || "Not provided",
+          Business: businessName,
+          Website: website || "Not provided",
+          City: city || "Not provided",
+          "Trial Ends": trialEndsAt.toLocaleDateString(),
+        },
+      });
+
       console.log("NEW TRIAL SIGNUP:", { name, email, businessName, website, city });
 
       return NextResponse.json({

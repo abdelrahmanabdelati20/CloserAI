@@ -130,6 +130,17 @@ model Message {
   createdAt       DateTime  @default(now())
 }
 
+// Admin notifications (trial signups, payments, etc.)
+model Notification {
+  id        String   @id @default(uuid())
+  type      String   // "trial_signup", "new_payment", "payment_failed", "trial_expired", "new_lead"
+  title     String   // "New trial signup: John Smith"
+  message   String   // Detailed message
+  metadata  String   @default("") // JSON string with extra data (email, amount, plan, etc.)
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
 // Property listings (optional - clients can add their listings for AI to reference)
 model Property {
   id            String    @id @default(uuid())

@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { hash } from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
+import { createNotification } from "@/lib/notifications";
+
+const PLAN_PRICES: Record<string, number> = {
+  "P-1LK62020A02608326NHLKVJI": 297,
+  "P-97J20105C8054843BNHLKWRQ": 597,
+  "P-7UV62933RP089234PNHLKXMA": 1497,
+};
 
 const PLANS: Record<string, { limit: number; name: string }> = {
   "P-1LK62020A02608326NHLKVJI": { limit: 500, name: "starter" },
@@ -74,6 +81,21 @@ export async function POST(req: Request) {
         const planId = resource.plan_id;
         const subscriberEmail = resource.subscriber?.email_address;
         const subscriberName = `${resource.subscriber?.name?.given_name || ""} ${resource.subscriber?.name?.surname || ""}`.trim() || "Client";
+        const planPrice = PLAN_PRICES[planId] || 0;
+
+        // Create notification for new payment
+        await createNotification({
+          type: "new_payment",
+          title: `💰 NEW PAYING CLIENT: ${subscriberName}`,
+          message: `${subscriberName} (${subscriberEmail}) just subscribed for $${planPrice}/month. This is real revenue!`,
+          metadata: {
+            Customer: subscriberName,
+            Email: subscriberEmail || "Not provided",
+            Plan: `$${planPrice}/month`,
+            "Subscription ID": subId,
+            "Plan ID": planId,
+          },
+        });
 
         // Try to find existing client
         const existing = await prisma.client.findFirst({ where: { paypalSubId: subId } });
@@ -140,18 +162,43 @@ export async function POST(req: Request) {
       }
 
       case "BILLING.SUBSCRIPTION.SUSPENDED": {
+        const client = await prisma.client.findFirst({ where: { paypalSubId: resource.id }, include: { user: true } });
         await prisma.client.updateMany({
           where: { paypalSubId: resource.id },
           data: { paypalStatus: "suspended", isActive: false },
         });
+        if (client) {
+          await createNotification({
+            type: "payment_failed",
+            title: `⚠️ Payment failed: ${client.businessName}`,
+            message: `Payment failed for ${client.businessName}. Their account has been auto-suspended. They need to update their payment method.`,
+            metadata: {
+              Client: client.businessName,
+              Email: client.user.email,
+              "Subscription ID": resource.id,
+            },
+          });
+        }
         break;
       }
 
       case "BILLING.SUBSCRIPTION.CANCELLED": {
+        const client = await prisma.client.findFirst({ where: { paypalSubId: resource.id }, include: { user: true } });
         await prisma.client.updateMany({
           where: { paypalSubId: resource.id },
           data: { paypalStatus: "cancelled", isActive: false },
         });
+        if (client) {
+          await createNotification({
+            type: "subscription_cancelled",
+            title: `Subscription cancelled: ${client.businessName}`,
+            message: `${client.businessName} has cancelled their subscription. Their account has been deactivated.`,
+            metadata: {
+              Client: client.businessName,
+              Email: client.user.email,
+            },
+          });
+        }
         break;
       }
 
