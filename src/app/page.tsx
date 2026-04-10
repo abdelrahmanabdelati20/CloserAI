@@ -110,16 +110,16 @@ export default function LandingPage() {
 
       {/* Navigation */}
       <nav className="fixed top-10 w-full bg-white/90 backdrop-blur-md z-40 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">C</span>
             </div>
-            <span className="text-xl font-bold text-brand-900">
+            <span className="text-lg sm:text-xl font-bold text-brand-900">
               Closer<span className="text-brand-600">AI</span>
             </span>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
+          </Link>
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
             <a href="#features" className="text-gray-600 hover:text-brand-600 transition">Features</a>
             <a href="#pricing" className="text-gray-600 hover:text-brand-600 transition">Pricing</a>
             <a href="/demo" className="text-gray-600 hover:text-brand-600 transition">Demo</a>
@@ -128,38 +128,44 @@ export default function LandingPage() {
               Free Trial
             </Link>
           </div>
+          <div className="flex md:hidden items-center gap-2">
+            <Link href="/demo" className="text-sm text-gray-600 hover:text-brand-600 transition">Demo</Link>
+            <Link href="/free-trial" className="gradient-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition">
+              Free Trial
+            </Link>
+          </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-44 pb-20 px-6">
+      <section className="pt-36 sm:pt-44 pb-16 sm:pb-20 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-block mb-6 px-4 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+          <div className="inline-block mb-5 sm:mb-6 px-4 py-1 bg-green-50 text-green-700 rounded-full text-xs sm:text-sm font-medium">
             14-Day Free Trial · No Credit Card Required
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight mb-5 sm:mb-6">
             Never Lose Another
             <br />
             <span className="text-transparent bg-clip-text" style={{backgroundImage: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)"}}>Real Estate Lead</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
+          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto mb-8 sm:mb-10 px-2">
             CloserAI is your 24/7 AI-powered sales agent that captures, qualifies, and
             converts website visitors into ready-to-close leads — while you sleep.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <a href="/free-trial" className="gradient-brand text-white px-8 py-4 rounded-xl text-lg font-semibold hover:opacity-90 transition shadow-lg shadow-brand-600/25">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 px-4">
+            <a href="/free-trial" className="gradient-brand text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg font-semibold hover:opacity-90 transition shadow-lg shadow-brand-600/25">
               Start Free 14-Day Trial
             </a>
-            <a href="/demo" className="border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl text-lg font-semibold hover:border-brand-300 transition">
+            <a href="/demo" className="border-2 border-gray-200 text-gray-700 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg font-semibold hover:border-brand-300 transition">
               See Live Demo
             </a>
           </div>
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 max-w-3xl mx-auto">
             {STATS.map((s) => (
               <div key={s.label}>
-                <div className="text-3xl font-bold text-brand-700">{s.value}</div>
-                <div className="text-gray-500 text-sm">{s.label}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-brand-700">{s.value}</div>
+                <div className="text-gray-500 text-xs sm:text-sm">{s.label}</div>
               </div>
             ))}
           </div>
