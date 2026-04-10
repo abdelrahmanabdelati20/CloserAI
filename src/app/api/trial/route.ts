@@ -55,7 +55,7 @@ export async function POST(req: Request) {
               website: website || "",
               apiKey,
               plan: "starter",
-              monthlyLimit: 500,
+              monthlyLimit: 1000,
               isActive: true,
               paypalStatus: "trial",
               trialEndsAt,

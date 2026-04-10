@@ -55,7 +55,7 @@ export async function POST(req: Request) {
                 plan,
                 isActive: false, // Inactive until payment confirmed
                 paypalStatus: "pending",
-                monthlyLimit: plan === "enterprise" ? 999999 : plan === "professional" ? 2000 : 500,
+                monthlyLimit: plan === "enterprise" ? 10000 : plan === "professional" ? 3000 : 1000,
               },
             },
           },

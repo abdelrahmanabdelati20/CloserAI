@@ -56,7 +56,7 @@ async function main() {
         agentName: "Sarah",
         welcomeMessage: "Hi there! I'm Sarah, your AI real estate assistant at Sunshine Realty. Whether you're looking to buy, sell, or just exploring — I'm here to help! What are you looking for?",
         brandColor: "#2563eb",
-        monthlyLimit: 2000,
+        monthlyLimit: 3000,
       },
     });
 

@@ -74,6 +74,24 @@ const STATS = [
   { value: "3x", label: "More Leads" },
 ];
 
+const SERVICES = [
+  {
+    icon: "🏡",
+    title: "Buy a Home",
+    desc: "Explore 10,000+ listings across Miami. Our AI assistant helps you find the perfect property in seconds.",
+  },
+  {
+    icon: "💰",
+    title: "Sell Your Home",
+    desc: "Get a free home valuation and list with Miami's top agents. We've closed over $500M in sales.",
+  },
+  {
+    icon: "🔑",
+    title: "Rent a Property",
+    desc: "Short-term, long-term, or vacation rentals. Find your next home in Miami's best neighborhoods.",
+  },
+];
+
 const BADGES: Record<string, string> = {
   NEW: "bg-green-500",
   HOT: "bg-red-500",
@@ -89,7 +107,8 @@ export default function DemoPage() {
   const [input, setInput] = useState("");
   const [convId, setConvId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [chatOpen, setChatOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -123,6 +142,7 @@ export default function DemoPage() {
   };
 
   const tryPrompt = (prompt: string) => {
+    setChatOpen(true);
     setInput(prompt);
     setTimeout(() => {
       setInput("");
@@ -150,37 +170,86 @@ export default function DemoPage() {
     }, 100);
   };
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, anchor: string) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    const el = document.getElementById(anchor);
+    if (el) {
+      const yOffset = -120; // Account for sticky header + demo banner
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" style={{ scrollBehavior: "smooth" }}>
       {/* Top CloserAI Demo Banner */}
-      <div className="text-white text-center py-3 px-4 text-sm font-medium" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
-        This is a LIVE DEMO of the CloserAI chat widget — try it bottom-right 👉 |{" "}
+      <div className="text-white text-center py-3 px-4 text-xs sm:text-sm font-medium" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
+        <span className="hidden sm:inline">🎬 This is a LIVE DEMO of the CloserAI chat widget — try it bottom-right 👉 | </span>
+        <span className="sm:hidden">🎬 LIVE DEMO · </span>
         <a href="/free-trial" className="underline font-bold">Start your free 14-day trial</a>
       </div>
 
       {/* Fake Site Header */}
       <header className="bg-white border-b sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <a href="#home" onClick={(e) => handleNavClick(e, "home")} className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md" style={{ background: "linear-gradient(135deg, #f59e0b, #ef4444)" }}>
               S
             </div>
             <div>
-              <div className="font-bold text-gray-900">Sunshine Realty Group</div>
-              <div className="text-xs text-gray-500">Miami, FL · Est. 2015</div>
+              <div className="font-bold text-gray-900 text-sm sm:text-base">Sunshine Realty Group</div>
+              <div className="text-[10px] sm:text-xs text-gray-500">Miami, FL · Est. 2015</div>
             </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm text-gray-600">
-            <a href="#listings" className="hover:text-orange-600">Listings</a>
-            <a href="#about" className="hover:text-orange-600">About</a>
-            <a href="#contact" className="hover:text-orange-600">Contact</a>
+          </a>
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-gray-700">
+            <a href="#listings" onClick={(e) => handleNavClick(e, "listings")} className="hover:text-orange-600 transition">Listings</a>
+            <a href="#services" onClick={(e) => handleNavClick(e, "services")} className="hover:text-orange-600 transition">Services</a>
+            <a href="#about" onClick={(e) => handleNavClick(e, "about")} className="hover:text-orange-600 transition">About</a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, "contact")} className="hover:text-orange-600 transition">Contact</a>
           </nav>
-          <a href="/" className="text-xs text-gray-400 hover:text-gray-600">← CloserAI Home</a>
+
+          {/* Right side: CloserAI Home link (desktop) + hamburger (mobile) */}
+          <div className="flex items-center gap-2">
+            <a href="/" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-600 border border-gray-200 rounded-full px-3 py-1.5 transition hover:bg-gray-50">
+              ← CloserAI
+            </a>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-100"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t bg-white shadow-lg">
+            <nav className="flex flex-col py-2">
+              <a href="#listings" onClick={(e) => handleNavClick(e, "listings")} className="px-6 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 font-medium">Listings</a>
+              <a href="#services" onClick={(e) => handleNavClick(e, "services")} className="px-6 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 font-medium">Services</a>
+              <a href="#about" onClick={(e) => handleNavClick(e, "about")} className="px-6 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 font-medium">About</a>
+              <a href="#contact" onClick={(e) => handleNavClick(e, "contact")} className="px-6 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 font-medium">Contact</a>
+              <a href="/" className="px-6 py-3 text-blue-600 hover:bg-blue-50 font-medium border-t mt-1">← Back to CloserAI</a>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Hero with Background Image */}
-      <div className="relative h-[500px] flex items-center justify-center overflow-hidden">
+      <section id="home" className="relative h-[500px] sm:h-[550px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1600&q=80"
@@ -189,200 +258,262 @@ export default function DemoPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" />
         </div>
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
-          <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium mb-4">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center text-white">
+          <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs sm:text-sm font-medium mb-4">
             🏡 Miami&apos;s Premier Real Estate Agency
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-            Find Your Dream Home <br/>in the Sunshine State
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-4 leading-tight">
+            Find Your Dream Home <br className="hidden sm:block"/>in the Sunshine State
           </h1>
-          <p className="text-xl text-white/90 mb-6 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-white/90 mb-6 max-w-2xl mx-auto px-2">
             Luxury properties, waterfront villas, and everything in between. Ask Sarah anything about our listings.
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
             <button
               onClick={() => tryPrompt("I'm looking for a 3 bedroom house in Miami under 800k")}
-              className="bg-white text-gray-900 px-5 py-2.5 rounded-lg font-medium hover:bg-gray-100 transition text-sm"
+              className="bg-white text-gray-900 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium hover:bg-gray-100 transition text-xs sm:text-sm shadow-lg"
             >
               💬 &quot;3 bedroom under 800k&quot;
             </button>
             <button
               onClick={() => tryPrompt("Show me waterfront luxury properties")}
-              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-5 py-2.5 rounded-lg font-medium hover:bg-white/30 transition text-sm"
+              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium hover:bg-white/30 transition text-xs sm:text-sm"
             >
               💬 &quot;Waterfront luxury&quot;
             </button>
             <button
               onClick={() => tryPrompt("Hola, busco una casa en Miami")}
-              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-5 py-2.5 rounded-lg font-medium hover:bg-white/30 transition text-sm"
+              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium hover:bg-white/30 transition text-xs sm:text-sm"
             >
               💬 &quot;Try Spanish!&quot;
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Stats Bar */}
       <div className="bg-white border-b shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {STATS.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg, #1e3a5f, #3b82f6)" }}>
+              <div className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg, #1e3a5f, #3b82f6)" }}>
                 {s.value}
               </div>
-              <div className="text-sm text-gray-500 mt-1">{s.label}</div>
+              <div className="text-xs sm:text-sm text-gray-500 mt-1">{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Featured Properties */}
-      <section id="listings" className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-1">Featured Listings</h2>
-            <p className="text-gray-500">Handpicked properties in Miami&apos;s most desirable neighborhoods</p>
+      {/* Services Section (NEW - distinct from listings) */}
+      <section id="services" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16" style={{ scrollMarginTop: "120px" }}>
+        <div className="text-center mb-10">
+          <div className="inline-block px-4 py-1.5 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-3">
+            What We Do
           </div>
-          <div className="hidden md:block text-sm text-gray-400">{PROPERTIES.length} properties available</div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Full-Service Real Estate</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Whether you&apos;re buying, selling, or renting — our team of 40+ agents has you covered across South Florida.
+          </p>
         </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {PROPERTIES.map((p) => (
-            <div
-              key={p.title}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer group"
-              onClick={() => tryPrompt(`Tell me more about the ${p.title}`)}
-            >
-              <div className="relative h-56 overflow-hidden">
-                <img
-                  src={p.image}
-                  alt={p.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className={`absolute top-3 left-3 ${BADGES[p.badge]} text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg`}>
-                  {p.badge}
-                </div>
-                <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
-                  {p.price}
-                </div>
-              </div>
-              <div className="p-5">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-bold text-lg text-gray-900 group-hover:text-orange-600 transition">{p.title}</h3>
-                </div>
-                <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  {p.city}
-                </div>
-                <div className="flex items-center justify-between text-sm text-gray-600 pb-3 border-b">
-                  <span>{p.beds}</span>
-                  <span>•</span>
-                  <span>{p.sqft}</span>
-                </div>
-                <p className="text-sm text-gray-500 mt-3 line-clamp-2">{p.desc}</p>
-                <button className="mt-4 text-sm font-medium text-orange-600 hover:text-orange-700 flex items-center gap-1">
-                  Ask Sarah about this property →
-                </button>
-              </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {SERVICES.map((s) => (
+            <div key={s.title} className="bg-white rounded-2xl p-6 border hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+              <div className="text-4xl mb-3">{s.icon}</div>
+              <h3 className="font-bold text-xl text-gray-900 mb-2">{s.title}</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Why Sunshine Realty Section */}
-      <section id="about" className="bg-white border-y py-12">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+      {/* Featured Properties */}
+      <section id="listings" className="bg-white border-y" style={{ scrollMarginTop: "120px" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 gap-3">
+            <div>
+              <div className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-3">
+                Featured Listings
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">Properties For Sale</h2>
+              <p className="text-gray-500">Handpicked properties in Miami&apos;s most desirable neighborhoods</p>
             </div>
-            <h3 className="font-bold text-lg mb-1">10,000+ Properties Sold</h3>
-            <p className="text-gray-500 text-sm">Trusted by thousands of Miami homeowners since 2015</p>
+            <div className="text-sm text-gray-400">{PROPERTIES.length} properties available</div>
           </div>
-          <div className="text-center">
-            <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-            </div>
-            <h3 className="font-bold text-lg mb-1">Award-Winning Team</h3>
-            <p className="text-gray-500 text-sm">Recognized by Miami Realtor Association 5 years in a row</p>
-          </div>
-          <div className="text-center">
-            <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-            </div>
-            <h3 className="font-bold text-lg mb-1">24/7 AI Support</h3>
-            <p className="text-gray-500 text-sm">Our AI assistant Sarah is always ready to help you</p>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {PROPERTIES.map((p) => (
+              <div
+                key={p.title}
+                className="bg-white rounded-2xl overflow-hidden shadow-sm border hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer group"
+                onClick={() => tryPrompt(`Tell me more about the ${p.title}`)}
+              >
+                <div className="relative h-56 overflow-hidden">
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className={`absolute top-3 left-3 ${BADGES[p.badge]} text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg`}>
+                    {p.badge}
+                  </div>
+                  <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm text-gray-900 px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                    {p.price}
+                  </div>
+                </div>
+                <div className="p-5">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-bold text-lg text-gray-900 group-hover:text-orange-600 transition">{p.title}</h3>
+                  </div>
+                  <div className="text-sm text-gray-500 mb-3 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {p.city}
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600 pb-3 border-b">
+                    <span>{p.beds}</span>
+                    <span>•</span>
+                    <span>{p.sqft}</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3 line-clamp-2">{p.desc}</p>
+                  <button className="mt-4 text-sm font-medium text-orange-600 hover:text-orange-700 flex items-center gap-1">
+                    Ask Sarah about this property →
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Contact Section - Professional fake agency contact */}
-      <section id="contact" className="bg-gradient-to-br from-orange-50 to-red-50 py-16 px-6 border-y border-orange-100">
-        <div className="max-w-6xl mx-auto">
+      {/* About Section */}
+      <section id="about" className="bg-gradient-to-br from-gray-50 to-orange-50 py-12 sm:py-16" style={{ scrollMarginTop: "120px" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <div className="inline-block px-4 py-1.5 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-3">
-              Contact Sunshine Realty
+              About Sunshine Realty
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Get in Touch With Our Team</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Miami&apos;s #1 Trusted Real Estate Team</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Prefer a quick chat? Click the bubble in the bottom-right corner to chat with Sarah, our 24/7 AI assistant — she speaks 50+ languages.
+              Since 2015, we&apos;ve helped thousands of families find their dream homes in the Sunshine State.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border text-center">
+              <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+              </div>
+              <h3 className="font-bold text-lg mb-1">10,000+ Properties Sold</h3>
+              <p className="text-gray-500 text-sm">Trusted by thousands of Miami homeowners since 2015</p>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border text-center">
+              <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+              </div>
+              <h3 className="font-bold text-lg mb-1">Award-Winning Team</h3>
+              <p className="text-gray-500 text-sm">Recognized by Miami Realtor Association 5 years in a row</p>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border text-center">
+              <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+              </div>
+              <h3 className="font-bold text-lg mb-1">24/7 AI Support</h3>
+              <p className="text-gray-500 text-sm">Our AI assistant Sarah is always ready to help you</p>
+            </div>
+          </div>
+
+          {/* Team stat bar */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-orange-600">40+</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Licensed Agents</div>
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-orange-600">$500M+</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">In Sales</div>
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-orange-600">10 Years</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">In Business</div>
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-bold text-orange-600">4.9★</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Google Rating</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="bg-white border-y py-12 sm:py-16" style={{ scrollMarginTop: "120px" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <div className="inline-block px-4 py-1.5 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-3">
+              Get In Touch
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Contact Our Team</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Have questions? Our agents are here to help. Or chat instantly with Sarah, our AI assistant.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Office */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100 text-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100 text-center">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
                 <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
               <h3 className="font-bold text-gray-900 mb-2">Visit Our Office</h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 leading-relaxed">
                 1234 Ocean Drive<br/>
                 Miami Beach, FL 33139<br/>
                 United States
               </p>
+              <p className="text-xs text-orange-600 mt-3 font-medium">Mon-Sat: 9am-7pm EST</p>
             </div>
 
-            {/* Phone */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100 text-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+            {/* Phone & Email */}
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100 text-center">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
                 <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Call Us</h3>
-              <p className="text-sm text-gray-600">
-                Mon-Sat, 9am-7pm EST<br/>
-                <span className="font-semibold text-gray-900">(305) 555-0123</span><br/>
-                Or chat 24/7 with AI
+              <h3 className="font-bold text-gray-900 mb-2">Call or Email</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                <span className="font-semibold text-gray-900 block">(305) 555-0123</span>
+                <span className="text-xs">info@sunshinerealty.com</span>
               </p>
+              <p className="text-xs text-orange-600 mt-3 font-medium">Response within 1 hour</p>
             </div>
 
-            {/* Chat */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-orange-300 text-center relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-xs font-bold">
-                INSTANT
+            {/* Chat with AI */}
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 text-center relative text-white shadow-lg">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-3 py-0.5 rounded-full text-xs font-bold">
+                ⚡ INSTANT
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Chat With Sarah (AI)</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Available 24/7 in 50+ languages. Ask about any property.
+              <h3 className="font-bold mb-2">Chat With Sarah (AI)</h3>
+              <p className="text-sm text-white/90 mb-3 leading-relaxed">
+                Available 24/7 in 50+ languages. Get instant answers.
               </p>
               <button
                 onClick={() => setChatOpen(true)}
-                className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+                className="bg-white text-blue-700 text-sm font-bold px-4 py-2 rounded-lg transition hover:bg-gray-100 shadow-md"
               >
-                Open Chat →
+                Open Chat Now →
               </button>
             </div>
           </div>
@@ -390,17 +521,17 @@ export default function DemoPage() {
       </section>
 
       {/* CloserAI Branded CTA - Want this for YOUR business? */}
-      <section className="py-16 px-6" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2563eb 100%)" }}>
+      <section className="py-12 sm:py-16 px-4 sm:px-6" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2563eb 100%)" }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center text-white mb-10">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-4">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
               You just tried the real product
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
               Want This AI Closing <span className="text-blue-300">YOUR</span> Leads 24/7?
             </h2>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto">
               Everything you just experienced — the instant replies, the 50+ language support, the property matching — runs on <strong>CloserAI</strong>. Get it on your website in under 5 minutes.
             </p>
           </div>
@@ -421,7 +552,7 @@ export default function DemoPage() {
                 <li>✓ 50+ Languages</li>
               </ul>
             </div>
-            <div className="bg-white rounded-2xl p-6 text-gray-900 shadow-2xl scale-105 relative">
+            <div className="bg-white rounded-2xl p-6 text-gray-900 shadow-2xl md:scale-105 relative">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-3 py-0.5 rounded-full text-xs font-bold">⭐ MOST POPULAR</div>
               <div className="text-sm font-semibold text-blue-600 mb-1">PROFESSIONAL</div>
               <div className="flex items-baseline gap-1 mb-1">
@@ -453,16 +584,16 @@ export default function DemoPage() {
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-10">
             <a
               href="/free-trial"
-              className="bg-white text-blue-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-xl w-full sm:w-auto text-center"
+              className="bg-white text-blue-700 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-gray-100 transition shadow-xl w-full sm:w-auto text-center"
             >
               Start Free 14-Day Trial →
             </a>
             <a
               href="/pricing"
-              className="bg-white/10 backdrop-blur-sm border border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition w-full sm:w-auto text-center"
+              className="bg-white/10 backdrop-blur-sm border border-white/30 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white/20 transition w-full sm:w-auto text-center"
             >
               See Full Pricing
             </a>
@@ -474,9 +605,9 @@ export default function DemoPage() {
             <p className="text-white/70 text-sm mb-4">Email us and we&apos;ll get back to you within 24 hours.</p>
             <a
               href="mailto:AbdelrahmanAbdelati20@gmail.com"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-xl font-medium transition"
+              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-xl font-medium transition text-sm sm:text-base break-all"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               AbdelrahmanAbdelati20@gmail.com
@@ -486,7 +617,7 @@ export default function DemoPage() {
       </section>
 
       <footer className="bg-gray-900 text-white border-t border-gray-800 py-8">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-3 gap-6 mb-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -509,12 +640,12 @@ export default function DemoPage() {
             <div>
               <h4 className="font-semibold mb-2 text-sm">Contact</h4>
               <ul className="text-sm text-gray-400 space-y-1">
-                <li><a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="hover:text-white">AbdelrahmanAbdelati20@gmail.com</a></li>
+                <li className="break-all"><a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="hover:text-white">AbdelrahmanAbdelati20@gmail.com</a></li>
                 <li><a href="/login" className="hover:text-white">Client Login</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-6 text-center text-sm text-gray-500">
+          <div className="border-t border-gray-800 pt-6 text-center text-xs sm:text-sm text-gray-500">
             <p>© 2026 CloserAI · The above &quot;Sunshine Realty Group&quot; is a simulated website to demonstrate how the widget embeds on a real estate business.</p>
           </div>
         </div>
@@ -524,10 +655,11 @@ export default function DemoPage() {
       {!chatOpen && (
         <button
           onClick={() => setChatOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 transition z-50"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 transition z-50"
           style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}
+          aria-label="Open chat"
         >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse">
@@ -537,7 +669,7 @@ export default function DemoPage() {
       )}
 
       {chatOpen && (
-        <div className="fixed bottom-6 right-6 w-[calc(100vw-2rem)] sm:w-96 max-h-[600px] bg-white rounded-2xl shadow-2xl border overflow-hidden flex flex-col z-50">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-96 max-h-[calc(100vh-6rem)] sm:max-h-[600px] bg-white rounded-2xl shadow-2xl border overflow-hidden flex flex-col z-50">
           {/* Chat Header */}
           <div className="p-4 text-white flex items-center gap-3" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
             <div className="relative">
@@ -563,7 +695,7 @@ export default function DemoPage() {
           </div>
 
           {/* Messages */}
-          <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[320px] max-h-[400px] bg-gray-50">
+          <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[280px] max-h-[400px] bg-gray-50">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 {m.role === "assistant" && (
@@ -636,6 +768,7 @@ export default function DemoPage() {
               disabled={loading || !input.trim()}
               className="px-4 py-2.5 rounded-xl text-white text-sm font-medium disabled:opacity-50 transition hover:opacity-90"
               style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}
+              aria-label="Send message"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

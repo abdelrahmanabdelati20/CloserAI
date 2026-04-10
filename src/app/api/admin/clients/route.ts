@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   const passwordHash = await hash(password, 12);
   const apiKey = `cai_${uuidv4().replace(/-/g, "")}`;
   const planKey = (plan || "starter") as keyof typeof PLANS;
-  const monthlyLimit = PLANS[planKey]?.monthlyLimit || 500;
+  const monthlyLimit = PLANS[planKey]?.monthlyLimit || 1000;
 
   const user = await prisma.user.create({
     data: {

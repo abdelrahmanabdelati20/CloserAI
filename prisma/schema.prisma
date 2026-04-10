@@ -58,7 +58,7 @@ model Client {
   businessHours   String    @default("Monday-Friday 9am-6pm")
 
   // Usage Limits
-  monthlyLimit    Int       @default(500) // conversations per month
+  monthlyLimit    Int       @default(1000) // conversations per month
   usageThisMonth  Int       @default(0)
   usageResetDate  DateTime  @default(now())
 

@@ -107,7 +107,7 @@ export async function POST(req: Request) {
           });
         } else if (subscriberEmail) {
           // Auto-create account
-          const plan = PLANS[planId] || { limit: 500, name: "starter" };
+          const plan = PLANS[planId] || { limit: 1000, name: "starter" };
           const password = Math.random().toString(36).slice(-10) + "!A1";
           const passwordHash = await hash(password, 12);
           const apiKey = `cai_${uuidv4().replace(/-/g, "")}`;

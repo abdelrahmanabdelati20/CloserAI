@@ -77,7 +77,7 @@ export default function ClientDashboard() {
         </div>
         <div className="bg-white rounded-2xl p-6 shadow-sm border">
           <div className="text-sm text-gray-500 mb-1">Monthly Usage</div>
-          <div className="text-3xl font-bold text-orange-700">{data.client.usageThisMonth} / {data.client.monthlyLimit === 999999 ? "Unlimited" : data.client.monthlyLimit}</div>
+          <div className="text-3xl font-bold text-orange-700">{data.client.usageThisMonth} / {data.client.monthlyLimit >= 999999 ? "Unlimited" : data.client.monthlyLimit.toLocaleString()}</div>
           <div className="mt-2 w-full bg-gray-100 rounded-full h-2">
             <div className="bg-brand-600 h-2 rounded-full transition-all" style={{ width: `${usagePercent}%` }} />
           </div>

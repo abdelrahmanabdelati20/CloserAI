@@ -196,7 +196,7 @@ export default function AdminClients() {
               </div>
               <div className="bg-gray-50 rounded-xl p-3 text-center">
                 <div className="text-xs text-gray-500">Usage This Month</div>
-                <div className="text-xl font-bold text-orange-700">{client.usageThisMonth} / {client.monthlyLimit === 999999 ? "Unltd" : client.monthlyLimit}</div>
+                <div className="text-xl font-bold text-orange-700">{client.usageThisMonth} / {client.monthlyLimit >= 999999 ? "Unltd" : client.monthlyLimit.toLocaleString()}</div>
               </div>
               <div className="bg-gray-50 rounded-xl p-3 text-center">
                 <div className="text-xs text-gray-500">AI Agent</div>

@@ -241,9 +241,9 @@ export default function PricingPage() {
               <div className="text-xs text-green-600 mt-2 font-semibold">= $5,000 - $50,000 commission</div>
             </div>
             <div className="bg-white rounded-xl p-5 border border-yellow-100">
-              <div className="text-3xl font-bold text-gray-900">$7,164</div>
+              <div className="text-3xl font-bold text-gray-900">$5,970</div>
               <div className="text-sm text-gray-600 mt-1">CloserAI Pro (annual)</div>
-              <div className="text-xs text-gray-500 mt-2">= full year of 24/7 AI</div>
+              <div className="text-xs text-green-600 mt-2 font-semibold">Save $1,194/year</div>
             </div>
             <div className="bg-white rounded-xl p-5 border border-yellow-100">
               <div className="text-3xl font-bold text-green-600">700%+</div>
