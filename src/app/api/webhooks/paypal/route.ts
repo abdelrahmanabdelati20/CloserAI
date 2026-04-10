@@ -7,13 +7,13 @@ import { createNotification } from "@/lib/notifications";
 const PLAN_PRICES: Record<string, number> = {
   "P-1LK62020A02608326NHLKVJI": 297,
   "P-97J20105C8054843BNHLKWRQ": 597,
-  "P-7UV62933RP089234PNHLKXMA": 1497,
+  "P-7UV62933RP089234PNHLKXMA": 1297,
 };
 
 const PLANS: Record<string, { limit: number; name: string }> = {
-  "P-1LK62020A02608326NHLKVJI": { limit: 500, name: "starter" },
-  "P-97J20105C8054843BNHLKWRQ": { limit: 2000, name: "professional" },
-  "P-7UV62933RP089234PNHLKXMA": { limit: 999999, name: "enterprise" },
+  "P-1LK62020A02608326NHLKVJI": { limit: 1000, name: "starter" },
+  "P-97J20105C8054843BNHLKWRQ": { limit: 3000, name: "professional" },
+  "P-7UV62933RP089234PNHLKXMA": { limit: 10000, name: "enterprise" },
 };
 
 async function sendWelcomeEmail(email: string, name: string, password: string, apiKey: string) {

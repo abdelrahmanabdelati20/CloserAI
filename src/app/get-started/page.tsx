@@ -6,9 +6,9 @@ import Script from "next/script";
 const PAYPAL_CLIENT_ID = "Ad0tNNgcXsJVUzrp2izuKq15cT4tCAAyEw6UqNIrKNwNMcHARRgQhqpwSUScL7B2dCnQ0UyvlFVuBZEw";
 
 const PLANS = [
-  { id: "starter", planId: "P-1LK62020A02608326NHLKVJI", name: "Starter", monthlyPrice: 297, setupFee: 997, features: ["1 Website Widget", "500 AI Conversations/month", "Lead Capture & Management", "Email Support"] },
-  { id: "professional", planId: "P-97J20105C8054843BNHLKWRQ", name: "Professional", monthlyPrice: 597, setupFee: 997, features: ["5 Website Widgets", "2,000 AI Conversations/month", "Property Matching AI", "Priority Support", "CRM Integration Ready"], popular: true },
-  { id: "enterprise", planId: "P-7UV62933RP089234PNHLKXMA", name: "Enterprise", monthlyPrice: 1497, setupFee: 1497, features: ["Unlimited Widgets", "Unlimited Conversations", "Custom AI Training", "White-Label Option", "Dedicated Account Manager"] },
+  { id: "starter", planId: "P-1LK62020A02608326NHLKVJI", name: "Starter", monthlyPrice: 297, features: ["1 Website Widget", "1,000 AI Conversations/month", "Lead Capture & Management", "50+ Languages", "Email Support"] },
+  { id: "professional", planId: "P-97J20105C8054843BNHLKWRQ", name: "Professional", monthlyPrice: 597, features: ["5 Website Widgets", "3,000 AI Conversations/month", "Advanced Lead Scoring", "Property Matching AI", "CRM Integration", "Priority Support (24h)"], popular: true },
+  { id: "enterprise", planId: "P-7UV62933RP089234PNHLKXMA", name: "Enterprise", monthlyPrice: 1297, features: ["Unlimited Widgets", "10,000 AI Conversations/month", "White-Label Option", "Custom AI Training", "Dedicated Account Manager"] },
 ];
 
 export default function GetStartedPage() {
@@ -110,8 +110,8 @@ export default function GetStartedPage() {
                 <span className="font-bold">{plan.name}</span>
               </div>
               <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">Setup Fee (one-time)</span>
-                <span className="font-bold">${plan.setupFee}</span>
+                <span className="font-medium">Setup Fee</span>
+                <span className="font-bold text-green-600">FREE</span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">Monthly Subscription</span>
@@ -120,7 +120,7 @@ export default function GetStartedPage() {
               <hr className="my-3" />
               <div className="flex justify-between items-center">
                 <span className="font-bold">Due Today</span>
-                <span className="font-bold text-xl text-blue-600">${plan.setupFee + plan.monthlyPrice}</span>
+                <span className="font-bold text-xl text-blue-600">${plan.monthlyPrice}</span>
               </div>
               <div className="text-xs text-gray-400 mt-1">Then ${plan.monthlyPrice}/month. Cancel anytime.</div>
             </div>
@@ -138,7 +138,7 @@ export default function GetStartedPage() {
             <div className="text-center mt-4">
               <div className="flex items-center justify-center gap-2 text-gray-400 text-xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                Secure payment via PayPal. 7-day money-back guarantee.
+                Secure payment via PayPal. 30-day money-back guarantee.
               </div>
             </div>
           </div>
@@ -182,10 +182,10 @@ export default function GetStartedPage() {
                     selectedPlan === p.id ? "border-blue-600 bg-blue-50 shadow-lg" : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                 >
-                  {(p as any).popular && <div className="text-xs font-bold text-blue-600 uppercase mb-2">Most Popular</div>}
+                  {(p as any).popular && <div className="text-xs font-bold text-blue-600 uppercase mb-2">⭐ Most Popular</div>}
                   <h3 className="text-xl font-bold">{p.name}</h3>
                   <div className="text-3xl font-bold text-blue-600 my-2">${p.monthlyPrice}<span className="text-sm text-gray-400">/mo</span></div>
-                  <div className="text-sm text-gray-500 mb-3">+ ${p.setupFee} one-time setup</div>
+                  <div className="text-sm text-green-600 font-semibold mb-3">$0 setup fee</div>
                   <ul className="space-y-2">
                     {p.features.map((f) => (
                       <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
@@ -215,7 +215,7 @@ export default function GetStartedPage() {
               <div className="bg-blue-50 rounded-xl p-4 mb-6 flex justify-between items-center">
                 <div>
                   <div className="font-bold text-blue-800">{plan.name} Plan</div>
-                  <div className="text-sm text-blue-600">${plan.monthlyPrice}/mo + ${plan.setupFee} setup</div>
+                  <div className="text-sm text-blue-600">${plan.monthlyPrice}/mo · $0 setup fee</div>
                 </div>
                 <button onClick={() => setStep(1)} className="text-sm text-blue-600 hover:underline">Change</button>
               </div>
@@ -245,7 +245,7 @@ export default function GetStartedPage() {
                 <button type="submit" className="w-full py-4 rounded-xl text-white font-bold text-lg transition hover:opacity-90 mt-4" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
                   Continue to Payment &rarr;
                 </button>
-                <p className="text-xs text-gray-400 text-center">7-day money-back guarantee. Cancel anytime.</p>
+                <p className="text-xs text-gray-400 text-center">30-day money-back guarantee. Cancel anytime.</p>
               </form>
             </div>
           </>

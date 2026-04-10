@@ -7,9 +7,9 @@ import Link from "next/link";
 const PAYPAL_CLIENT_ID = "Ad0tNNgcXsJVUzrp2izuKq15cT4tCAAyEw6UqNIrKNwNMcHARRgQhqpwSUScL7B2dCnQ0UyvlFVuBZEw";
 
 const PLANS = [
-  { id: "starter", planId: "P-1LK62020A02608326NHLKVJI", name: "Starter", price: 297, features: ["1 Website", "500 conversations/mo", "Lead capture", "Email support"] },
-  { id: "professional", planId: "P-97J20105C8054843BNHLKWRQ", name: "Professional", price: 597, features: ["5 Websites", "2,000 conversations/mo", "Priority support", "Property matching"], popular: true },
-  { id: "enterprise", planId: "P-7UV62933RP089234PNHLKXMA", name: "Enterprise", price: 1497, features: ["Unlimited", "Custom training", "Dedicated manager", "White-label"] },
+  { id: "starter", planId: "P-1LK62020A02608326NHLKVJI", name: "Starter", price: 297, features: ["1 Website", "1,000 conversations/mo", "Lead capture", "50+ Languages", "Email support"] },
+  { id: "professional", planId: "P-97J20105C8054843BNHLKWRQ", name: "Professional", price: 597, features: ["5 Websites", "3,000 conversations/mo", "Priority support (24h)", "Property matching AI", "CRM integration"], popular: true },
+  { id: "enterprise", planId: "P-7UV62933RP089234PNHLKXMA", name: "Enterprise", price: 1297, features: ["Unlimited Widgets", "10,000 conversations/mo", "Custom training", "Dedicated manager", "White-label"] },
 ];
 
 export default function TrialExpiredPage() {
@@ -156,7 +156,7 @@ export default function TrialExpiredPage() {
           </div>
 
           <div className="text-center mt-8 text-sm text-gray-500">
-            <p>Questions? Email <a href="mailto:support@closerai.com" className="text-blue-600">support@closerai.com</a></p>
+            <p>Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600">AbdelrahmanAbdelati20@gmail.com</a></p>
           </div>
         </div>
       </div>

@@ -7,46 +7,43 @@ const PLANS = [
   {
     name: "Starter",
     price: 297,
-    setup: 997,
     features: [
       "1 Website Widget",
-      "500 AI Conversations/month",
+      "1,000 AI Conversations/month",
       "Lead Capture & Management",
+      "50+ Languages Support",
       "Email Notifications",
       "Basic Analytics Dashboard",
     ],
-    cta: "Get Started",
+    cta: "Start Free Trial",
     popular: false,
   },
   {
     name: "Professional",
     price: 597,
-    setup: 997,
     features: [
       "5 Website Widgets",
-      "2,000 AI Conversations/month",
+      "3,000 AI Conversations/month",
       "Advanced Lead Scoring",
       "Property Matching AI",
       "CRM Integration Ready",
-      "Priority Support",
+      "Priority Support (24h)",
     ],
-    cta: "Most Popular",
+    cta: "Start Free Trial",
     popular: true,
   },
   {
     name: "Enterprise",
-    price: 1497,
-    setup: 1497,
+    price: 1297,
     features: [
       "Unlimited Widgets",
-      "Unlimited AI Conversations",
+      "10,000 AI Conversations/month",
       "Custom AI Training",
       "White-Label Option",
       "Full API Access",
       "Dedicated Account Manager",
-      "Custom Integrations",
     ],
-    cta: "Contact Sales",
+    cta: "Start Free Trial",
     popular: false,
   },
 ];
@@ -334,22 +331,26 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-1.5 text-sm font-medium text-green-700 mb-4">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              14-day free trial · No credit card · $0 setup fee
+            </div>
             <h2 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-gray-600 text-lg">One-time setup fee + monthly subscription. Cancel anytime.</p>
+            <p className="text-gray-600 text-lg">No setup fees. No contracts. Cancel anytime.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {PLANS.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl p-8 ${
+                className={`rounded-2xl p-8 relative ${
                   plan.popular
-                    ? "gradient-brand text-white shadow-2xl shadow-brand-600/25 scale-105"
+                    ? "gradient-brand text-white shadow-2xl shadow-brand-600/25 md:scale-105"
                     : "bg-white border-2 border-gray-100 shadow-sm"
                 }`}
               >
                 {plan.popular && (
-                  <div className="text-xs font-bold uppercase tracking-wider mb-4 text-yellow-300">
-                    Most Popular
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                    ⭐ MOST POPULAR
                   </div>
                 )}
                 <h3 className="text-2xl font-bold mb-1">{plan.name}</h3>
@@ -357,8 +358,8 @@ export default function LandingPage() {
                   <span className="text-4xl font-bold">${plan.price}</span>
                   <span className={plan.popular ? "text-white/70" : "text-gray-500"}>/month</span>
                 </div>
-                <div className={`text-sm mb-6 ${plan.popular ? "text-white/70" : "text-gray-500"}`}>
-                  + ${plan.setup} one-time setup
+                <div className={`text-sm mb-6 font-semibold ${plan.popular ? "text-yellow-300" : "text-green-600"}`}>
+                  $0 setup fee
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((f) => (
@@ -371,7 +372,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <a
-                  href="/get-started"
+                  href="/free-trial"
                   className={`block text-center py-3 rounded-xl font-semibold transition ${
                     plan.popular
                       ? "bg-white text-brand-700 hover:bg-gray-100"
@@ -380,8 +381,16 @@ export default function LandingPage() {
                 >
                   {plan.cta}
                 </a>
+                <p className={`text-xs text-center mt-2 ${plan.popular ? "text-white/60" : "text-gray-400"}`}>
+                  No credit card required
+                </p>
               </div>
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <a href="/pricing" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
+              See full pricing details & annual plans →
+            </a>
           </div>
         </div>
       </section>

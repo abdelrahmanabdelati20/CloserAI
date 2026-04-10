@@ -319,24 +319,204 @@ export default function DemoPage() {
         </div>
       </section>
 
-      {/* Footer Callout */}
-      <section id="contact" className="py-12 text-center">
-        <div className="max-w-2xl mx-auto px-6">
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">Ready to find your dream home?</h3>
-          <p className="text-gray-500 mb-4">Click the chat bubble and ask Sarah anything — in any language!</p>
-          <div className="inline-flex items-center gap-2 text-sm text-gray-400 bg-white border rounded-full px-4 py-2">
-            👉 <span className="font-medium">The chat widget is in the bottom-right corner</span>
+      {/* Contact Section - Professional fake agency contact */}
+      <section id="contact" className="bg-gradient-to-br from-orange-50 to-red-50 py-16 px-6 border-y border-orange-100">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-block px-4 py-1.5 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-3">
+              Contact Sunshine Realty
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Get in Touch With Our Team</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Prefer a quick chat? Click the bubble in the bottom-right corner to chat with Sarah, our 24/7 AI assistant — she speaks 50+ languages.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Office */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100 text-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Visit Our Office</h3>
+              <p className="text-sm text-gray-600">
+                1234 Ocean Drive<br/>
+                Miami Beach, FL 33139<br/>
+                United States
+              </p>
+            </div>
+
+            {/* Phone */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100 text-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Call Us</h3>
+              <p className="text-sm text-gray-600">
+                Mon-Sat, 9am-7pm EST<br/>
+                <span className="font-semibold text-gray-900">(305) 555-0123</span><br/>
+                Or chat 24/7 with AI
+              </p>
+            </div>
+
+            {/* Chat */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-orange-300 text-center relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-xs font-bold">
+                INSTANT
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Chat With Sarah (AI)</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Available 24/7 in 50+ languages. Ask about any property.
+              </p>
+              <button
+                onClick={() => setChatOpen(true)}
+                className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+              >
+                Open Chat →
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer className="bg-white border-t py-6 text-center text-sm text-gray-500">
+      {/* CloserAI Branded CTA - Want this for YOUR business? */}
+      <section className="py-16 px-6" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2563eb 100%)" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center text-white mb-10">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-4">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              You just tried the real product
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              Want This AI Closing <span className="text-blue-300">YOUR</span> Leads 24/7?
+            </h2>
+            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+              Everything you just experienced — the instant replies, the 50+ language support, the property matching — runs on <strong>CloserAI</strong>. Get it on your website in under 5 minutes.
+            </p>
+          </div>
+
+          {/* Inline Pricing Preview */}
+          <div className="grid md:grid-cols-3 gap-4 mb-10">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-white hover:bg-white/15 transition">
+              <div className="text-sm font-semibold text-blue-300 mb-1">STARTER</div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl font-bold">$297</span>
+                <span className="text-white/60">/mo</span>
+              </div>
+              <div className="text-xs text-green-300 font-semibold mb-3">$0 setup fee</div>
+              <ul className="text-sm text-white/80 space-y-1.5">
+                <li>✓ 1 Website Widget</li>
+                <li>✓ 1,000 Conversations/mo</li>
+                <li>✓ Lead Capture &amp; Scoring</li>
+                <li>✓ 50+ Languages</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-2xl p-6 text-gray-900 shadow-2xl scale-105 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-3 py-0.5 rounded-full text-xs font-bold">⭐ MOST POPULAR</div>
+              <div className="text-sm font-semibold text-blue-600 mb-1">PROFESSIONAL</div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl font-bold">$597</span>
+                <span className="text-gray-500">/mo</span>
+              </div>
+              <div className="text-xs text-green-600 font-semibold mb-3">$0 setup fee</div>
+              <ul className="text-sm text-gray-700 space-y-1.5">
+                <li>✓ 5 Website Widgets</li>
+                <li>✓ 3,000 Conversations/mo</li>
+                <li>✓ Advanced Lead Scoring</li>
+                <li>✓ Priority Support (24h)</li>
+              </ul>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-white hover:bg-white/15 transition">
+              <div className="text-sm font-semibold text-blue-300 mb-1">ENTERPRISE</div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl font-bold">$1,297</span>
+                <span className="text-white/60">/mo</span>
+              </div>
+              <div className="text-xs text-green-300 font-semibold mb-3">$0 setup fee</div>
+              <ul className="text-sm text-white/80 space-y-1.5">
+                <li>✓ Unlimited Widgets</li>
+                <li>✓ 10,000 Conversations/mo</li>
+                <li>✓ White-Label Option</li>
+                <li>✓ Dedicated Manager</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
+            <a
+              href="/free-trial"
+              className="bg-white text-blue-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-xl w-full sm:w-auto text-center"
+            >
+              Start Free 14-Day Trial →
+            </a>
+            <a
+              href="/pricing"
+              className="bg-white/10 backdrop-blur-sm border border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition w-full sm:w-auto text-center"
+            >
+              See Full Pricing
+            </a>
+          </div>
+
+          {/* Contact Info */}
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
+            <h3 className="text-white font-bold text-lg mb-2">Questions? Talk to a human</h3>
+            <p className="text-white/70 text-sm mb-4">Email us and we&apos;ll get back to you within 24 hours.</p>
+            <a
+              href="mailto:AbdelrahmanAbdelati20@gmail.com"
+              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-xl font-medium transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              AbdelrahmanAbdelati20@gmail.com
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-gray-900 text-white border-t border-gray-800 py-8">
         <div className="max-w-7xl mx-auto px-6">
-          <p>© 2026 Sunshine Realty Group (Demo)</p>
-          <p className="mt-2">
-            This is a simulated real estate website. The AI chat widget is the real CloserAI product.{" "}
-            <a href="/free-trial" className="text-orange-600 font-medium hover:underline">Get your own free trial →</a>
-          </p>
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
+                  <span className="text-white font-bold text-sm">C</span>
+                </div>
+                <span className="text-lg font-bold">Closer<span className="text-blue-400">AI</span></span>
+              </div>
+              <p className="text-sm text-gray-400">AI that closes real estate leads 24/7 in 50+ languages.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2 text-sm">Product</h4>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li><a href="/" className="hover:text-white">Home</a></li>
+                <li><a href="/pricing" className="hover:text-white">Pricing</a></li>
+                <li><a href="/demo" className="hover:text-white">Live Demo</a></li>
+                <li><a href="/free-trial" className="hover:text-white">Free Trial</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2 text-sm">Contact</h4>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li><a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="hover:text-white">AbdelrahmanAbdelati20@gmail.com</a></li>
+                <li><a href="/login" className="hover:text-white">Client Login</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-6 text-center text-sm text-gray-500">
+            <p>© 2026 CloserAI · The above &quot;Sunshine Realty Group&quot; is a simulated website to demonstrate how the widget embeds on a real estate business.</p>
+          </div>
         </div>
       </footer>
 
