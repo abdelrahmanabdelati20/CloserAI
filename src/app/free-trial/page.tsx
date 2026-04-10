@@ -259,6 +259,9 @@ export default function FreeTrialPage() {
           <p>
             Already have an account? <Link href="/login" className="text-blue-600 font-medium">Sign in</Link>
           </p>
+          <p className="mt-3">
+            Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600 font-medium">AbdelrahmanAbdelati20@gmail.com</a>
+          </p>
         </div>
       </div>
     </div>

@@ -414,19 +414,45 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-brand-950 text-white/60 py-12 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 gradient-brand rounded flex items-center justify-center">
-              <span className="text-white font-bold text-xs">C</span>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">C</span>
+                </div>
+                <span className="font-bold text-white text-lg">CloserAI</span>
+              </div>
+              <p className="text-sm">AI that closes real estate leads 24/7 in 50+ languages.</p>
             </div>
-            <span className="font-bold text-white">CloserAI</span>
+            <div>
+              <h4 className="font-semibold text-white mb-3 text-sm">Product</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/" className="hover:text-white transition">Home</a></li>
+                <li><a href="/pricing" className="hover:text-white transition">Pricing</a></li>
+                <li><a href="/demo" className="hover:text-white transition">Live Demo</a></li>
+                <li><a href="/free-trial" className="hover:text-white transition">Free Trial</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-3 text-sm">Account</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/login" className="hover:text-white transition">Client Login</a></li>
+                <li><a href="/get-started" className="hover:text-white transition">Get Started</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-3 text-sm">Contact</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="hover:text-white transition break-all">AbdelrahmanAbdelati20@gmail.com</a></li>
+                <li className="text-xs">Response within 24 hours</li>
+              </ul>
+            </div>
           </div>
-          <div className="flex gap-6 text-sm">
-            <a href="#" className="hover:text-white transition">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition">Terms of Service</a>
-            <a href="#" className="hover:text-white transition">Support</a>
+          <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm">
+            <div>&copy; {new Date().getFullYear()} CloserAI. All rights reserved.</div>
+            <div>Built for real estate agents worldwide.</div>
           </div>
-          <div className="text-sm">&copy; {new Date().getFullYear()} CloserAI. All rights reserved.</div>
         </div>
       </footer>
     </div>

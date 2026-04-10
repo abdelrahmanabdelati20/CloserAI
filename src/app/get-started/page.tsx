@@ -246,6 +246,9 @@ export default function GetStartedPage() {
                   Continue to Payment &rarr;
                 </button>
                 <p className="text-xs text-gray-400 text-center">30-day money-back guarantee. Cancel anytime.</p>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600 font-medium">AbdelrahmanAbdelati20@gmail.com</a>
+                </p>
               </form>
             </div>
           </>
