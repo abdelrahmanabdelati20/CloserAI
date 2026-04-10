@@ -202,6 +202,9 @@ export default function GetStartedPage() {
               <button onClick={() => setStep(2)} className="px-10 py-4 rounded-xl text-white font-bold text-lg transition hover:opacity-90" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
                 Continue with {plan.name} Plan &rarr;
               </button>
+              <p className="text-xs text-gray-500 mt-4">
+                Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600 font-medium">AbdelrahmanAbdelati20@gmail.com</a>
+              </p>
             </div>
           </>
         )}
