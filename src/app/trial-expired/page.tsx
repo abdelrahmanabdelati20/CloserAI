@@ -6,18 +6,32 @@ import Link from "next/link";
 
 const PAYPAL_CLIENT_ID = "Ad0tNNgcXsJVUzrp2izuKq15cT4tCAAyEw6UqNIrKNwNMcHARRgQhqpwSUScL7B2dCnQ0UyvlFVuBZEw";
 
-const PLANS = [
-  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", price: 297, features: ["1 Website", "1,000 conversations/mo", "Lead capture", "50+ Languages", "Email support"] },
-  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", price: 597, features: ["5 Websites", "3,000 conversations/mo", "Priority support (24h)", "Property matching AI", "CRM integration"], popular: true },
-  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", price: 1297, features: ["Unlimited Widgets", "10,000 conversations/mo", "Custom training", "Dedicated manager", "White-label"] },
+const MONTHLY_PLANS = [
+  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", price: 297, features: ["1 Website Widget", "1,000 conversations/mo", "Lead capture & scoring", "50+ Languages", "Email support"] },
+  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", price: 597, features: ["5 Website Widgets", "3,000 conversations/mo", "Priority support (24h)", "Property matching AI", "CRM/Zapier integration", "SMS & Email alerts"], popular: true },
+  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", price: 1297, features: ["Unlimited Widgets", "10,000 conversations/mo", "White-label branding", "Full API access", "Priority support (4h)"] },
+];
+const ANNUAL_PLANS = [
+  { id: "starter", planId: "P-2J09452604397282GNHO4GSQ", name: "Starter", price: 248, annualTotal: 2970, features: MONTHLY_PLANS[0].features },
+  { id: "professional", planId: "P-93R54480Y01739649NHO4HXY", name: "Professional", price: 498, annualTotal: 5970, features: MONTHLY_PLANS[1].features, popular: true },
+  { id: "enterprise", planId: "P-7KN90917L04901723NHO4JCQ", name: "Enterprise", price: 1081, annualTotal: 12970, features: MONTHLY_PLANS[2].features },
 ];
 
 export default function TrialExpiredPage() {
   const [selectedPlan, setSelectedPlan] = useState("professional");
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [paypalReady, setPaypalReady] = useState(false);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const paypalRef = useRef<HTMLDivElement>(null);
 
+  // Read billing=annual URL param on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("billing") === "annual") setBilling("annual");
+  }, []);
+
+  const PLANS: typeof MONTHLY_PLANS = billing === "annual" ? (ANNUAL_PLANS as typeof MONTHLY_PLANS) : MONTHLY_PLANS;
   const plan = PLANS.find((p) => p.id === selectedPlan)!;
 
   useEffect(() => {
@@ -113,6 +127,31 @@ export default function TrialExpiredPage() {
             </div>
           </div>
 
+          {/* Billing Toggle */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex bg-white border border-gray-200 rounded-2xl p-1.5 shadow-md">
+              <button
+                type="button"
+                onClick={() => setBilling("monthly")}
+                className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  billing === "monthly" ? "bg-blue-600 text-white shadow-md" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => setBilling("annual")}
+                className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all relative ${
+                  billing === "annual" ? "bg-blue-600 text-white shadow-md" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Annual
+                <span className="ml-1.5 text-[10px] bg-yellow-400 text-gray-900 px-1.5 py-0.5 rounded-full font-bold">Save 17%</span>
+              </button>
+            </div>
+          </div>
+
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {PLANS.map((p) => (
               <button
@@ -125,6 +164,11 @@ export default function TrialExpiredPage() {
                 {(p as any).popular && <div className="text-xs font-bold text-blue-600 uppercase mb-2">Most Popular</div>}
                 <h3 className="text-xl font-bold">{p.name}</h3>
                 <div className="text-3xl font-bold text-blue-600 my-2">${p.price}<span className="text-sm text-gray-400">/mo</span></div>
+                <div className="text-xs text-gray-500 mb-1">
+                  {billing === "annual" && (p as any).annualTotal
+                    ? `$${((p as any).annualTotal as number).toLocaleString("en-US")} billed annually`
+                    : "Billed monthly"}
+                </div>
                 <div className="text-xs text-green-600 font-semibold mb-3">No setup fee (you&apos;re already set up!)</div>
                 <ul className="space-y-2">
                   {p.features.map((f) => (
@@ -140,8 +184,12 @@ export default function TrialExpiredPage() {
 
           <div className="max-w-md mx-auto bg-white rounded-3xl shadow-xl p-6">
             <div className="text-center mb-4">
-              <h3 className="font-bold text-lg">Subscribe to {plan.name}</h3>
-              <p className="text-gray-500 text-sm">${plan.price}/month, cancel anytime</p>
+              <h3 className="font-bold text-lg">Subscribe to {plan.name} ({billing === "annual" ? "Annual" : "Monthly"})</h3>
+              <p className="text-gray-500 text-sm">
+                {billing === "annual" && (plan as any).annualTotal
+                  ? `$${((plan as any).annualTotal as number).toLocaleString("en-US")}/year, cancel anytime`
+                  : `$${plan.price}/month, cancel anytime`}
+              </p>
             </div>
             <div ref={paypalRef} />
             {!paypalReady && (
@@ -156,7 +204,7 @@ export default function TrialExpiredPage() {
           </div>
 
           <div className="text-center mt-8 text-sm text-gray-500">
-            <p>Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600">AbdelrahmanAbdelati20@gmail.com</a></p>
+            <p>Questions? Email <a href="https://mail.google.com/mail/?view=cm&to=AbdelrahmanAbdelati20@gmail.com" target="_blank" rel="noopener" className="text-blue-600">AbdelrahmanAbdelati20@gmail.com</a></p>
           </div>
         </div>
       </div>

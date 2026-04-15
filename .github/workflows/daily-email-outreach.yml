@@ -1,0 +1,54 @@
+name: Daily Email Outreach
+
+# Runs every weekday at 14:08 UTC (~10:08 AM ET / 9:08 AM CT / 7:08 AM PT)
+# in GitHub's cloud — NO laptop, NO Claude, NO Chrome needed.
+on:
+  schedule:
+    - cron: "8 14 * * 1-5"
+  workflow_dispatch: # allow manual trigger from the GitHub UI
+
+permissions:
+  contents: write # to commit back the updated blast-log.json
+
+jobs:
+  blast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install nodemailer
+        run: npm install nodemailer --no-save
+
+      - name: Run email blast
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          BATCH_LIMIT: "40"
+          DELAY_MS: "20000"
+        run: |
+          if [ -z "$GMAIL_APP_PASSWORD" ]; then
+            echo "::error::GMAIL_APP_PASSWORD secret not set. Add it in Settings → Secrets → Actions."
+            exit 1
+          fi
+          node scripts/blast-emails-ci.js
+
+      - name: Commit updated blast-log.json
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add scripts/blast-log.json
+          if git diff --staged --quiet; then
+            echo "No log changes to commit."
+          else
+            git commit -m "chore: daily blast progress [skip ci]"
+            git push
+          fi

@@ -422,6 +422,51 @@ async function sendLeadNotification(clientId: string, lead: any) {
         html,
       }),
     });
+
+    // SMS alert for Pro/Enterprise clients with phone configured
+    if (client.notifyPhone && (client.plan === "professional" || client.plan === "enterprise")) {
+      const smsText = `CloserAI ${tempEmoji} LEAD: ${lead.name || "Visitor"} | ${lead.phone || "No phone"} | Score: ${lead.score || "?"}/10 | ${lead.temperature || "unknown"} | Budget: ${lead.budget || "N/A"}`;
+
+      if (client.notifyPhone.includes("@")) {
+        // Email-to-SMS gateway (e.g., 5551234567@tmomail.net)
+        try {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${emailApiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "CloserAI <alerts@closerai-app.vercel.app>",
+              to: client.notifyPhone,
+              subject: `${tempEmoji} Lead: ${lead.name || "Visitor"}`,
+              text: smsText,
+            }),
+          });
+        } catch {} // Best-effort
+      } else {
+        // Plain phone number — try Textbelt free API (1 SMS/day) or configured TEXTBELT_KEY for paid
+        const phoneDigits = client.notifyPhone.replace(/[^\d+]/g, "");
+        const textbeltKey = process.env.TEXTBELT_KEY || "textbelt";
+        try {
+          await fetch("https://textbelt.com/text", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: phoneDigits, message: smsText, key: textbeltKey }),
+          });
+        } catch {} // Best-effort
+        // Also send as a backup email (so user always gets the alert)
+        try {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${emailApiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "CloserAI <alerts@closerai-app.vercel.app>",
+              to: client.notifyEmail,
+              subject: `${tempEmoji} SMS-formatted lead alert: ${lead.name || "Visitor"}`,
+              text: smsText,
+            }),
+          });
+        } catch {}
+      }
+    }
   } catch (e) {
     console.error("Failed to send lead notification:", e);
   }
@@ -436,6 +481,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing apiKey or message" }, { status: 400 });
     }
 
+    // Prevent abuse: limit message length (2000 chars = ~500 tokens)
+    if (typeof message !== "string" || message.length > 2000) {
+      return NextResponse.json({ error: "Message too long (max 2000 characters)" }, { status: 400 });
+    }
+
     let config: any = DEMO_CONFIG;
     let isDemoMode = true;
     let clientId: string | null = null;
@@ -443,10 +493,19 @@ export async function POST(req: Request) {
     try {
       const prisma = (await import("@/lib/db")).default;
       const { checkTrialStatus } = await import("@/lib/trial");
-      const client = await prisma.client.findUnique({
+      let client = await prisma.client.findUnique({
         where: { apiKey },
-        include: { properties: { where: { status: "active" } } },
+        include: { properties: { where: { status: "active" }, take: 50, orderBy: { createdAt: "desc" } } },
       });
+
+      // If not found by primary key, check extra widgets
+      if (!client && apiKey !== DEMO_API_KEY) {
+        const clients = await prisma.client.findMany({
+          where: { extraWidgets: { contains: apiKey } },
+          include: { properties: { where: { status: "active" }, take: 50, orderBy: { createdAt: "desc" } } },
+        });
+        if (clients.length > 0) client = clients[0];
+      }
 
       if (!client && apiKey !== DEMO_API_KEY) {
         return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
@@ -492,11 +551,14 @@ export async function POST(req: Request) {
           }, { status: 429 });
         }
 
-        // Increment usage counter (async, don't await)
-        prisma.client.update({
-          where: { id: client.id },
-          data: { usageThisMonth: { increment: 1 } },
-        }).catch(() => {});
+        // Only count NEW conversations (not follow-up messages in existing ones)
+        // This ensures "1,000 conversations" means 1,000 unique chats, not 1,000 messages
+        if (!conversationId) {
+          await prisma.client.update({
+            where: { id: client.id },
+            data: { usageThisMonth: { increment: 1 } },
+          }).catch(() => {});
+        }
 
         clientId = client.id;
         config = {
@@ -614,6 +676,21 @@ export async function POST(req: Request) {
             if (info.temperature === "hot" || info.temperature === "warm") {
               await sendLeadNotification(clientId, lead);
             }
+            // Fire CRM/Zapier webhook if configured
+            try {
+              const webhookClient = await prisma.client.findUnique({ where: { id: clientId }, select: { webhookUrl: true } });
+              if (webhookClient?.webhookUrl) {
+                fetch(webhookClient.webhookUrl, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    event: "lead.created",
+                    timestamp: new Date().toISOString(),
+                    lead: { id: lead.id, ...leadData, conversationId: dbConvId },
+                  }),
+                }).catch(() => {}); // fire and forget
+              }
+            } catch {} // webhook is best-effort
           }
         }
 

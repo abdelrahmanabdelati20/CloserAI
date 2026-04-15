@@ -5,21 +5,36 @@ import Script from "next/script";
 
 const PAYPAL_CLIENT_ID = "Ad0tNNgcXsJVUzrp2izuKq15cT4tCAAyEw6UqNIrKNwNMcHARRgQhqpwSUScL7B2dCnQ0UyvlFVuBZEw";
 
-const PLANS = [
-  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", monthlyPrice: 297, features: ["1 Website Widget", "1,000 AI Conversations/month", "Lead Capture & Management", "50+ Languages", "Email Support"] },
-  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", monthlyPrice: 597, features: ["5 Website Widgets", "3,000 AI Conversations/month", "Advanced Lead Scoring", "Property Matching AI", "CRM Integration", "Priority Support (24h)"], popular: true },
-  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", monthlyPrice: 1297, features: ["Unlimited Widgets", "10,000 AI Conversations/month", "White-Label Option", "Custom AI Training", "Dedicated Account Manager"] },
+const MONTHLY_PLANS = [
+  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", monthlyPrice: 297, annualTotal: 0, features: ["1 Website Widget", "1,000 AI Conversations/month", "Lead Capture & Scoring", "50+ Languages", "Email Support"] },
+  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", monthlyPrice: 597, annualTotal: 0, features: ["5 Website Widgets", "3,000 AI Conversations/month", "Advanced Lead Scoring & Analytics", "Property Matching AI", "CRM/Zapier Integration", "Priority Support (24h)"], popular: true },
+  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", monthlyPrice: 1297, annualTotal: 0, features: ["Unlimited Widgets", "10,000 AI Conversations/month", "White-Label Branding", "Full REST API Access", "Priority Support (4h)"] },
+];
+
+const ANNUAL_PLANS = [
+  { id: "starter", planId: "P-2J09452604397282GNHO4GSQ", name: "Starter", monthlyPrice: 248, annualTotal: 2970, features: MONTHLY_PLANS[0].features },
+  { id: "professional", planId: "P-93R54480Y01739649NHO4HXY", name: "Professional", monthlyPrice: 498, annualTotal: 5970, features: MONTHLY_PLANS[1].features, popular: true },
+  { id: "enterprise", planId: "P-7KN90917L04901723NHO4JCQ", name: "Enterprise", monthlyPrice: 1081, annualTotal: 12970, features: MONTHLY_PLANS[2].features },
 ];
 
 export default function GetStartedPage() {
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState("professional");
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [form, setForm] = useState({ name: "", email: "", phone: "", businessName: "", website: "" });
   const [submitted, setSubmitted] = useState(false);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const paypalRef = useRef<HTMLDivElement>(null);
   const [paypalReady, setPaypalReady] = useState(false);
 
+  // Read billing=annual URL param on mount (client-only)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("billing") === "annual") setBilling("annual");
+  }, []);
+
+  const PLANS = billing === "annual" ? ANNUAL_PLANS : MONTHLY_PLANS;
   const plan = PLANS.find((p) => p.id === selectedPlan)!;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -107,22 +122,32 @@ export default function GetStartedPage() {
             <div className="bg-gray-50 rounded-xl p-5 mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">Plan</span>
-                <span className="font-bold">{plan.name}</span>
+                <span className="font-bold">{plan.name} ({billing === "annual" ? "Annual" : "Monthly"})</span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">Setup Fee</span>
                 <span className="font-bold text-green-600">FREE</span>
               </div>
               <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">Monthly Subscription</span>
-                <span className="font-bold">${plan.monthlyPrice}/mo</span>
+                <span className="font-medium">{billing === "annual" ? "Annual Subscription" : "Monthly Subscription"}</span>
+                <span className="font-bold">
+                  {billing === "annual" && plan.annualTotal
+                    ? `$${plan.annualTotal.toLocaleString("en-US")}/yr`
+                    : `$${plan.monthlyPrice}/mo`}
+                </span>
               </div>
               <hr className="my-3" />
               <div className="flex justify-between items-center">
                 <span className="font-bold">Due Today</span>
-                <span className="font-bold text-xl text-blue-600">${plan.monthlyPrice}</span>
+                <span className="font-bold text-xl text-blue-600">
+                  ${billing === "annual" && plan.annualTotal ? plan.annualTotal.toLocaleString("en-US") : plan.monthlyPrice}
+                </span>
               </div>
-              <div className="text-xs text-gray-400 mt-1">Then ${plan.monthlyPrice}/month. Cancel anytime.</div>
+              <div className="text-xs text-gray-400 mt-1">
+                {billing === "annual" && plan.annualTotal
+                  ? `Then $${plan.annualTotal.toLocaleString("en-US")}/year. Cancel anytime.`
+                  : `Then $${plan.monthlyPrice}/month. Cancel anytime.`}
+              </div>
             </div>
 
             {/* PayPal Subscribe Button */}
@@ -138,7 +163,7 @@ export default function GetStartedPage() {
             <div className="text-center mt-4">
               <div className="flex items-center justify-center gap-2 text-gray-400 text-xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                Secure payment via PayPal. 30-day money-back guarantee.
+                Secure payment via PayPal. Cancel anytime from your dashboard.
               </div>
             </div>
           </div>
@@ -149,47 +174,116 @@ export default function GetStartedPage() {
 
   // Main signup flow
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Header */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <a href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>C</div>
-            <span className="text-xl font-bold">Closer<span className="text-blue-600">AI</span></span>
+      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-4">
+          <a href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+            <div className="relative w-9 h-9 gradient-brand rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+              <span className="text-white font-bold text-base">C</span>
+            </div>
+            <span className="text-lg sm:text-xl font-bold tracking-tight">Closer<span className="gradient-text">AI</span></span>
           </a>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span className={`${step >= 1 ? "text-blue-600 font-bold" : ""}`}>1. Choose Plan</span>
-            <span>&rarr;</span>
-            <span className={`${step >= 2 ? "text-blue-600 font-bold" : ""}`}>2. Your Details</span>
-            <span>&rarr;</span>
-            <span>3. Payment</span>
+          <div className="hidden md:flex items-center gap-3 text-xs sm:text-sm">
+            <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${step >= 1 ? "gradient-brand text-white font-semibold shadow-md" : "text-gray-500"}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step >= 1 ? "bg-white/20" : "bg-gray-200"}`}>1</span>
+              Choose Plan
+            </span>
+            <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${step >= 2 ? "gradient-brand text-white font-semibold shadow-md" : "text-gray-500"}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step >= 2 ? "bg-white/20" : "bg-gray-200"}`}>2</span>
+              Your Details
+            </span>
+            <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-gray-500">
+              <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gray-200">3</span>
+              Payment
+            </span>
           </div>
+          <div className="md:hidden text-xs text-gray-500">Step {step} of 3</div>
         </div>
-      </div>
+      </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        {/* Background decorations */}
+        <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+        <div className="absolute top-20 -left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob pointer-events-none"></div>
+        <div className="absolute top-40 -right-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000 pointer-events-none"></div>
+
         {step === 1 && (
-          <>
-            <h1 className="text-3xl font-bold text-center mb-2">Choose Your Plan</h1>
-            <p className="text-gray-500 text-center mb-10">All plans include AI chat widget, lead dashboard, and multilingual support (50+ languages).</p>
+          <div className="relative">
+            <div className="text-center mb-10 sm:mb-14">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-4">
+                Choose your <span className="gradient-text-vivid">plan</span>
+              </h1>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">All plans include AI chat widget, lead dashboard, and multilingual support (50+ languages).</p>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              {/* Billing Toggle */}
+              <div className="inline-flex bg-white border border-gray-200 rounded-2xl p-1.5 shadow-premium">
+                <button
+                  type="button"
+                  onClick={() => setBilling("monthly")}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    billing === "monthly" ? "gradient-brand text-white shadow-md" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBilling("annual")}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all relative ${
+                    billing === "annual" ? "gradient-brand text-white shadow-md" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Annual
+                  <span className="ml-1.5 text-[10px] bg-yellow-400 text-gray-900 px-1.5 py-0.5 rounded-full font-bold">Save 17%</span>
+                </button>
+              </div>
+              {billing === "annual" && (
+                <p className="text-sm text-green-600 mt-3 font-semibold">Pay for 10 months, get 12 — save 17%.</p>
+              )}
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-5 sm:gap-6 mb-10">
               {PLANS.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => setSelectedPlan(p.id)}
-                  className={`text-left rounded-2xl p-6 border-2 transition ${
-                    selectedPlan === p.id ? "border-blue-600 bg-blue-50 shadow-lg" : "border-gray-200 bg-white hover:border-gray-300"
+                  className={`relative text-left rounded-3xl p-6 sm:p-7 border-2 transition-all ${
+                    selectedPlan === p.id
+                      ? "border-blue-500 bg-blue-50 shadow-premium-lg scale-[1.02]"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-premium"
                   }`}
                 >
-                  {(p as any).popular && <div className="text-xs font-bold text-blue-600 uppercase mb-2">⭐ Most Popular</div>}
-                  <h3 className="text-xl font-bold">{p.name}</h3>
-                  <div className="text-3xl font-bold text-blue-600 my-2">${p.monthlyPrice}<span className="text-sm text-gray-400">/mo</span></div>
-                  <div className="text-sm text-green-600 font-semibold mb-3">$0 setup fee</div>
-                  <ul className="space-y-2">
+                  {(p as any).popular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <div className="flex items-center gap-1 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-[10px] font-bold shadow-md">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        MOST POPULAR
+                      </div>
+                    </div>
+                  )}
+                  {selectedPlan === p.id && (
+                    <div className="absolute top-4 right-4 w-6 h-6 rounded-full gradient-brand flex items-center justify-center shadow-md">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                  )}
+                  <h3 className="text-xl font-bold text-gray-900">{p.name}</h3>
+                  <div className="mt-3">
+                    <span className="text-4xl font-bold tracking-tight gradient-text-vivid">${p.monthlyPrice}</span>
+                    <span className="text-sm text-gray-500 ml-1">/mo</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    {billing === "annual" && p.annualTotal ? `$${p.annualTotal.toLocaleString("en-US")} billed annually` : "Billed monthly"}
+                  </div>
+                  <div className="text-xs text-green-600 font-semibold mb-4">✓ $0 setup fee</div>
+                  <ul className="space-y-2.5">
                     {p.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                        <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                      <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
+                        <div className="flex-shrink-0 w-4 h-4 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                          <svg className="w-2.5 h-2.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        </div>
                         {f}
                       </li>
                     ))}
@@ -199,31 +293,45 @@ export default function GetStartedPage() {
             </div>
 
             <div className="text-center">
-              <button onClick={() => setStep(2)} className="px-10 py-4 rounded-xl text-white font-bold text-lg transition hover:opacity-90" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
-                Continue with {plan.name} Plan &rarr;
+              <button
+                onClick={() => setStep(2)}
+                className="group gradient-brand text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all"
+              >
+                <span className="inline-flex items-center gap-2">
+                  Continue with {plan.name} Plan
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                </span>
               </button>
-              <p className="text-xs text-gray-500 mt-4">
-                Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600 font-medium">AbdelrahmanAbdelati20@gmail.com</a>
+              <p className="text-xs text-gray-500 mt-5">
+                Questions? Email <a href="https://mail.google.com/mail/?view=cm&to=AbdelrahmanAbdelati20@gmail.com" target="_blank" rel="noopener" className="text-blue-600 font-semibold hover:underline">AbdelrahmanAbdelati20@gmail.com</a>
               </p>
             </div>
-          </>
+          </div>
         )}
 
         {step === 2 && (
-          <>
-            <h1 className="text-3xl font-bold text-center mb-2">Tell Us About Your Business</h1>
-            <p className="text-gray-500 text-center mb-10">We&apos;ll use this to set up your custom AI assistant.</p>
+          <div className="relative">
+            <div className="text-center mb-10 sm:mb-14">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-4">
+                Tell us about your <span className="gradient-text-vivid">business</span>
+              </h1>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">We&apos;ll use this to set up your custom AI assistant.</p>
+            </div>
 
             <div className="max-w-lg mx-auto">
-              <div className="bg-blue-50 rounded-xl p-4 mb-6 flex justify-between items-center">
+              <div className="gradient-brand rounded-2xl p-5 mb-6 flex justify-between items-center text-white shadow-lg shadow-blue-500/30">
                 <div>
-                  <div className="font-bold text-blue-800">{plan.name} Plan</div>
-                  <div className="text-sm text-blue-600">${plan.monthlyPrice}/mo · $0 setup fee</div>
+                  <div className="font-bold">{plan.name} Plan ({billing === "annual" ? "Annual" : "Monthly"})</div>
+                  <div className="text-sm text-white/80">
+                    {billing === "annual" && plan.annualTotal
+                      ? `$${plan.annualTotal.toLocaleString("en-US")}/yr · $0 setup fee`
+                      : `$${plan.monthlyPrice}/mo · $0 setup fee`}
+                  </div>
                 </div>
-                <button onClick={() => setStep(1)} className="text-sm text-blue-600 hover:underline">Change</button>
+                <button onClick={() => setStep(1)} className="text-sm text-white/80 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20 transition">Change</button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-premium-lg border border-gray-200 p-6 sm:p-8 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
                   <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="John Smith" />
@@ -245,16 +353,22 @@ export default function GetStartedPage() {
                   <input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} className="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://yourwebsite.com" />
                 </div>
 
-                <button type="submit" className="w-full py-4 rounded-xl text-white font-bold text-lg transition hover:opacity-90 mt-4" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>
-                  Continue to Payment &rarr;
+                <button
+                  type="submit"
+                  className="group w-full gradient-brand text-white py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all mt-4"
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    Continue to Payment
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                  </span>
                 </button>
-                <p className="text-xs text-gray-400 text-center">30-day money-back guarantee. Cancel anytime.</p>
+                <p className="text-xs text-gray-400 text-center">14-day free trial included. Cancel anytime from your dashboard.</p>
                 <p className="text-xs text-gray-500 text-center mt-2">
-                  Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600 font-medium">AbdelrahmanAbdelati20@gmail.com</a>
+                  Questions? Email <a href="https://mail.google.com/mail/?view=cm&to=AbdelrahmanAbdelati20@gmail.com" target="_blank" rel="noopener" className="text-blue-600 font-semibold hover:underline">AbdelrahmanAbdelati20@gmail.com</a>
                 </p>
               </form>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
