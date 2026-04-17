@@ -7,14 +7,14 @@ import Link from "next/link";
 const PAYPAL_CLIENT_ID = "Ad0tNNgcXsJVUzrp2izuKq15cT4tCAAyEw6UqNIrKNwNMcHARRgQhqpwSUScL7B2dCnQ0UyvlFVuBZEw";
 
 const MONTHLY_PLANS = [
-  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", price: 297, features: ["1 Website Widget", "1,000 conversations/mo", "Lead capture & scoring", "50+ Languages", "Email support"] },
-  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", price: 597, features: ["5 Website Widgets", "3,000 conversations/mo", "Priority support (24h)", "Property matching AI", "CRM/Zapier integration", "SMS & Email alerts"], popular: true },
-  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", price: 1297, features: ["Unlimited Widgets", "10,000 conversations/mo", "White-label branding", "Full API access", "Priority support (4h)"] },
+  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", price: 299, features: ["1 Website Widget", "1,000 conversations/mo", "Full CRM + Home Valuations", "Email + Smart Plans", "50+ Languages AI"] },
+  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", price: 799, features: ["5 Website Widgets", "3,000 conversations/mo", "Email + SMS campaigns", "Power Dialer + Transactions", "Team + Social Scheduler", "Priority support (24h)"], popular: true },
+  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", price: 1999, features: ["Unlimited Widgets + Team", "10,000 conversations/mo", "White-label branding", "IDX/MLS + REST API", "Priority support (4h)"] },
 ];
 const ANNUAL_PLANS = [
-  { id: "starter", planId: "P-2J09452604397282GNHO4GSQ", name: "Starter", price: 248, annualTotal: 2970, features: MONTHLY_PLANS[0].features },
-  { id: "professional", planId: "P-93R54480Y01739649NHO4HXY", name: "Professional", price: 498, annualTotal: 5970, features: MONTHLY_PLANS[1].features, popular: true },
-  { id: "enterprise", planId: "P-7KN90917L04901723NHO4JCQ", name: "Enterprise", price: 1081, annualTotal: 12970, features: MONTHLY_PLANS[2].features },
+  { id: "starter", planId: "P-2J09452604397282GNHO4GSQ", name: "Starter", price: 249, annualTotal: 2990, features: MONTHLY_PLANS[0].features },
+  { id: "professional", planId: "P-93R54480Y01739649NHO4HXY", name: "Professional", price: 666, annualTotal: 7990, features: MONTHLY_PLANS[1].features, popular: true },
+  { id: "enterprise", planId: "P-7KN90917L04901723NHO4JCQ", name: "Enterprise", price: 1666, annualTotal: 19990, features: MONTHLY_PLANS[2].features },
 ];
 
 export default function TrialExpiredPage() {

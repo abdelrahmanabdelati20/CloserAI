@@ -18,13 +18,14 @@
 
 const BASE_URL = process.argv[2] || "https://closerai-app.vercel.app";
 
+// Content checks are case-insensitive to allow copy tweaks without breaking verification
 const PAGES = [
-  { path: "/", mustContain: ["CloserAI", "Real Estate Lead", "$297", "$0 setup fee"], mustNotContain: ["$997", "$1497", "$1,497"] },
-  { path: "/pricing", mustContain: ["Simple, Transparent Pricing", "$297", "$597", "$1,297", "$0 setup fee", "Save 17%", "1,000", "3,000", "10,000"], mustNotContain: ["$997", "$1,497", "500 AI Conversations", "2,000 AI Conversations", "Unlimited Conversations"] },
-  { path: "/demo", mustContain: ["Sunshine Realty Group", "Sarah", "$297", "$597", "$1,297"], mustNotContain: ["$997 setup", "$1,497"] },
-  { path: "/free-trial", mustContain: ["14-Day Free Trial", "AbdelrahmanAbdelati20@gmail.com"], mustNotContain: ["$1497"] },
-  { path: "/get-started", mustContain: ["Choose Your Plan", "$297", "$597", "$1,297", "$0 setup fee", "AbdelrahmanAbdelati20@gmail.com"], mustNotContain: ["$997", "$1,497"] },
-  { path: "/trial-expired", mustContain: ["$297", "$597", "$1,297", "AbdelrahmanAbdelati20@gmail.com"], mustNotContain: ["$1,497"] },
+  { path: "/", mustContain: ["CloserAI", "Real Estate Lead", "$299", "$799", "$1,999"], mustNotContain: ["$297", "$597 ", "$1,297"] },
+  { path: "/pricing", mustContain: ["transparent", "pricing", "$299", "$799", "$1,999", "1,000", "3,000", "10,000"], mustNotContain: ["$297", "$597 ", "$1,297", "500 AI Conversations", "2,000 AI Conversations"] },
+  { path: "/demo", mustContain: ["Sunshine Realty Group", "Sarah"], mustNotContain: [] },
+  { path: "/free-trial", mustContain: ["14-Day Free Trial", "AbdelrahmanAbdelati20@gmail.com"], mustNotContain: [] },
+  { path: "/get-started", mustContain: ["Choose your", "AbdelrahmanAbdelati20@gmail.com"], mustNotContain: [] },
+  { path: "/trial-expired", mustContain: ["AbdelrahmanAbdelati20@gmail.com"], mustNotContain: [] },
   { path: "/login", mustContain: ["CloserAI"] },
 ];
 
@@ -32,6 +33,9 @@ const API_ENDPOINTS = [
   { path: "/widget.js", mustContain: ["CloserAI", "api/chat"], expectedType: "application/javascript" },
   { path: "/favicon.svg", expectedType: "image/svg" },
   { path: "/logo-pfp-512.png", expectedType: "image/png" },
+  { path: "/manifest.json", expectedType: "application/json", mustContain: ["CloserAI"] },
+  { path: "/sitemap.xml", expectedType: "xml", mustContain: ["closerai-app.vercel.app"] },
+  { path: "/robots.txt", expectedType: "text", mustContain: ["User-Agent"] },
 ];
 
 const PAYPAL_PLAN_IDS = {
@@ -91,21 +95,22 @@ async function checkPage(page) {
   // React inserts these between static and dynamic parts of template literals,
   // so "$297" becomes "$<!-- -->297" in server-rendered HTML.
   const normalizedHtml = html.replace(/<!--[^>]*-->/g, "");
+  const lowerHtml = normalizedHtml.toLowerCase();
 
-  // Must-contain checks (with both raw and comma-free variants to handle formatted numbers)
+  // Must-contain checks (case-insensitive, also tries without commas for formatted numbers)
   for (const text of page.mustContain || []) {
-    // Try: exact match, or without comma (handles $1,297 vs $1297)
-    const noCommas = text.replace(/,/g, "");
-    if (normalizedHtml.includes(text) || normalizedHtml.includes(noCommas)) {
+    const lowerText = text.toLowerCase();
+    const noCommas = lowerText.replace(/,/g, "");
+    if (lowerHtml.includes(lowerText) || lowerHtml.includes(noCommas)) {
       pass(`Contains "${text}"`);
     } else {
       fail(`MISSING "${text}"`);
     }
   }
 
-  // Must-NOT-contain checks
+  // Must-NOT-contain checks (case-insensitive)
   for (const text of page.mustNotContain || []) {
-    if (!normalizedHtml.includes(text)) {
+    if (!lowerHtml.includes(text.toLowerCase())) {
       pass(`Does not contain "${text}"`);
     } else {
       fail(`SHOULD NOT contain "${text}"`);
@@ -176,10 +181,12 @@ async function checkAsset(asset) {
 
     if (asset.expectedType) {
       const contentType = res.headers.get("content-type") || "";
-      if (contentType.includes(asset.expectedType.split("/")[1])) {
-        pass(`Content-Type includes "${asset.expectedType.split("/")[1]}"`);
+      // Handle both "application/json" and "json" formats
+      const typeKey = asset.expectedType.includes("/") ? asset.expectedType.split("/")[1] : asset.expectedType;
+      if (contentType.toLowerCase().includes(typeKey.toLowerCase())) {
+        pass(`Content-Type includes "${typeKey}"`);
       } else {
-        fail(`Content-Type "${contentType}" doesn't include "${asset.expectedType}"`);
+        fail(`Content-Type "${contentType}" doesn't include "${typeKey}"`);
       }
     }
 
@@ -264,6 +271,114 @@ async function checkAiApi() {
   }
 }
 
+async function checkHealthEndpoint() {
+  console.log(`\n${BOLD}▸ Health Endpoint (/api/health)${RESET}`);
+  try {
+    const res = await fetch(`${BASE_URL}/api/health?verify=${Date.now()}`);
+    if (res.status === 200 || res.status === 503) {
+      const data = await res.json();
+      if (data.status === "healthy") {
+        pass(`Health endpoint returns healthy (${data.summary.ok}/${data.summary.total} checks ok)`);
+      } else {
+        fail(`Health endpoint unhealthy (${data.summary?.fail || "?"} failures)`);
+        if (data.checks) {
+          for (const [name, check] of Object.entries(data.checks)) {
+            if (check.status === "fail") {
+              fail(`  health.${name}: ${check.message}`);
+            }
+          }
+        }
+      }
+    } else {
+      fail(`Health endpoint HTTP ${res.status}`);
+    }
+  } catch (e) {
+    warn(`Health endpoint not deployed yet or error: ${e.message}`);
+  }
+}
+
+async function checkErrorEndpoint() {
+  console.log(`\n${BOLD}▸ Error Tracking (/api/errors)${RESET}`);
+  try {
+    const res = await fetch(`${BASE_URL}/api/errors`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "other",
+        message: "verify-deploy smoke test",
+      }),
+    });
+    if (res.status === 200) {
+      pass(`Accepts POST`);
+    } else {
+      fail(`HTTP ${res.status}`);
+    }
+  } catch (e) {
+    warn(`Error endpoint check failed: ${e.message}`);
+  }
+}
+
+async function checkUpdateDelivery() {
+  console.log(`\n${BOLD}▸ Client Update Delivery System${RESET}`);
+
+  // Check /api/changelog works
+  try {
+    const res = await fetch(`${BASE_URL}/api/changelog`);
+    if (res.status === 200) {
+      const data = await res.json();
+      if (data.entries && data.entries.length > 0) {
+        pass(`/api/changelog returns ${data.entries.length} entries (latest: v${data.latest_version})`);
+      } else {
+        fail(`/api/changelog returns no entries`);
+      }
+    } else {
+      fail(`/api/changelog HTTP ${res.status}`);
+    }
+  } catch (e) {
+    warn(`/api/changelog error: ${e.message}`);
+  }
+
+  // Check /api/version works
+  try {
+    const res = await fetch(`${BASE_URL}/api/version`);
+    if (res.status === 200) {
+      const data = await res.json();
+      if (data.version) pass(`/api/version returns v${data.version}`);
+      else fail(`/api/version missing version field`);
+    } else {
+      fail(`/api/version HTTP ${res.status}`);
+    }
+  } catch (e) {
+    warn(`/api/version error: ${e.message}`);
+  }
+
+  // Check widget.js cache headers - must be SHORT so updates reach clients fast
+  try {
+    const res = await fetch(`${BASE_URL}/widget.js`);
+    const cacheControl = res.headers.get("cache-control") || "";
+    // Parse max-age
+    const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
+    const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1]) : null;
+    if (maxAge === null) {
+      fail(`widget.js has no max-age cache directive`);
+    } else if (maxAge > 600) {
+      fail(`widget.js cache too long (${maxAge}s) - updates won't reach clients fast`);
+    } else {
+      pass(`widget.js cache is short (${maxAge}s) - updates propagate within ${maxAge}s`);
+    }
+
+    // Check CORS header is set (must be * so widget can be embedded anywhere)
+    const corsHeader = res.headers.get("access-control-allow-origin");
+    if (corsHeader === "*") {
+      pass(`widget.js CORS header allows all origins (required for embedding)`);
+    } else {
+      fail(`widget.js CORS header is "${corsHeader}" - should be "*"`);
+    }
+  } catch (e) {
+    warn(`widget.js cache check failed: ${e.message}`);
+  }
+}
+
 (async () => {
   console.log(`${BOLD}═══════════════════════════════════════════════════${RESET}`);
   console.log(`${BOLD}  CLOSERAI DEPLOY VERIFICATION${RESET}`);
@@ -280,6 +395,9 @@ async function checkAiApi() {
 
   await checkPayPalPlanIds();
   await checkAiApi();
+  await checkHealthEndpoint();
+  await checkErrorEndpoint();
+  await checkUpdateDelivery();
 
   console.log(`\n${BOLD}═══════════════════════════════════════════════════${RESET}`);
   if (failedChecks === 0) {

@@ -42,6 +42,7 @@ async function main() {
     });
 
     const apiKey = `cai_${uuidv4().replace(/-/g, "")}`;
+    const widgetId = `wgt_demo0001`;
     await prisma.client.create({
       data: {
         id: uuidv4(),
@@ -49,6 +50,7 @@ async function main() {
         businessName: "Sunshine Realty Group",
         phone: "+1-555-0123",
         website: "https://sunshinerealty.example.com",
+        widgetId,
         apiKey,
         isActive: true,
         plan: "professional",

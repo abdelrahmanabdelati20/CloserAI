@@ -37,6 +37,8 @@ export async function POST(req: Request) {
         // Create a pending client account (inactive until payment confirmed)
         const passwordHash = await hash(email.split("@")[0] + "2024!", 12);
         const apiKey = `cai_${uuidv4().replace(/-/g, "")}`;
+        const { generateWidgetId } = await import("@/lib/paypal");
+        const widgetId = generateWidgetId();
 
         await prisma.user.create({
           data: {
@@ -51,6 +53,7 @@ export async function POST(req: Request) {
                 businessName,
                 phone: phone || "",
                 website: website || "",
+                widgetId,
                 apiKey,
                 plan,
                 isActive: false, // Inactive until payment confirmed

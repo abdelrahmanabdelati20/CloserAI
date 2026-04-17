@@ -5,7 +5,12 @@ name: Daily Email Outreach
 on:
   schedule:
     - cron: "8 14 * * 1-5"
-  workflow_dispatch: # allow manual trigger from the GitHub UI
+  workflow_dispatch:
+    inputs:
+      batch_limit:
+        description: "Number of emails to send (default: 40)"
+        required: false
+        default: "40"
 
 permissions:
   contents: write # to commit back the updated blast-log.json
@@ -32,7 +37,7 @@ jobs:
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          BATCH_LIMIT: "40"
+          BATCH_LIMIT: ${{ github.event.inputs.batch_limit || '40' }}
           DELAY_MS: "20000"
         run: |
           if [ -z "$GMAIL_APP_PASSWORD" ]; then

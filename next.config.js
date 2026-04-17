@@ -53,12 +53,32 @@ const nextConfig = {
         ],
       },
       {
-        // Widget.js: cache briefly (5 min) so updates propagate fast
+        // Widget.js: 60s cache + stale-while-revalidate so updates reach
+        // clients' website visitors within 60 seconds of deployment.
+        // This is the KEY to making improvements propagate to clients fast.
         source: "/widget.js",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=300, must-revalidate",
+            value: "public, max-age=60, must-revalidate, stale-while-revalidate=300",
+          },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "X-Widget-Version",
+            value: "3.2.0",
+          },
+        ],
+      },
+      {
+        // API endpoints that clients/widgets call frequently
+        source: "/api/widget/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=30, must-revalidate",
           },
           {
             key: "Access-Control-Allow-Origin",

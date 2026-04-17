@@ -6,15 +6,15 @@ import Script from "next/script";
 const PAYPAL_CLIENT_ID = "Ad0tNNgcXsJVUzrp2izuKq15cT4tCAAyEw6UqNIrKNwNMcHARRgQhqpwSUScL7B2dCnQ0UyvlFVuBZEw";
 
 const MONTHLY_PLANS = [
-  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", monthlyPrice: 297, annualTotal: 0, features: ["1 Website Widget", "1,000 AI Conversations/month", "Lead Capture & Scoring", "50+ Languages", "Email Support"] },
-  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", monthlyPrice: 597, annualTotal: 0, features: ["5 Website Widgets", "3,000 AI Conversations/month", "Advanced Lead Scoring & Analytics", "Property Matching AI", "CRM/Zapier Integration", "Priority Support (24h)"], popular: true },
-  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", monthlyPrice: 1297, annualTotal: 0, features: ["Unlimited Widgets", "10,000 AI Conversations/month", "White-Label Branding", "Full REST API Access", "Priority Support (4h)"] },
+  { id: "starter", planId: "P-3ME68261TF865700ANHMV6VA", name: "Starter", monthlyPrice: 299, annualTotal: 0, features: ["1 Website Widget", "1,000 AI Conversations/month", "Full CRM (Leads + Deals + Tasks)", "Email Campaigns + Smart Plans", "Home Valuations + Landing Pages", "50+ Languages AI Chat"] },
+  { id: "professional", planId: "P-2MY58249L8606483BNHMWLZI", name: "Professional", monthlyPrice: 799, annualTotal: 0, features: ["5 Website Widgets", "3,000 AI Conversations/month", "Unlimited Email + SMS Campaigns", "Power Dialer + Call Log", "Transactions + Team Management", "CRM Webhooks (SF, HubSpot, FUB)"], popular: true },
+  { id: "enterprise", planId: "P-25E55064LR4216211NHMWNOA", name: "Enterprise", monthlyPrice: 1999, annualTotal: 0, features: ["Unlimited Widgets + Team", "10,000 AI Conversations/month", "White-Label Branding", "Full REST API Access", "IDX / MLS Feed Setup", "Priority Support (4h)"] },
 ];
 
 const ANNUAL_PLANS = [
-  { id: "starter", planId: "P-2J09452604397282GNHO4GSQ", name: "Starter", monthlyPrice: 248, annualTotal: 2970, features: MONTHLY_PLANS[0].features },
-  { id: "professional", planId: "P-93R54480Y01739649NHO4HXY", name: "Professional", monthlyPrice: 498, annualTotal: 5970, features: MONTHLY_PLANS[1].features, popular: true },
-  { id: "enterprise", planId: "P-7KN90917L04901723NHO4JCQ", name: "Enterprise", monthlyPrice: 1081, annualTotal: 12970, features: MONTHLY_PLANS[2].features },
+  { id: "starter", planId: "P-2J09452604397282GNHO4GSQ", name: "Starter", monthlyPrice: 249, annualTotal: 2990, features: MONTHLY_PLANS[0].features },
+  { id: "professional", planId: "P-93R54480Y01739649NHO4HXY", name: "Professional", monthlyPrice: 666, annualTotal: 7990, features: MONTHLY_PLANS[1].features, popular: true },
+  { id: "enterprise", planId: "P-7KN90917L04901723NHO4JCQ", name: "Enterprise", monthlyPrice: 1666, annualTotal: 19990, features: MONTHLY_PLANS[2].features },
 ];
 
 export default function GetStartedPage() {

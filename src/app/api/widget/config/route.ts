@@ -20,7 +20,8 @@ export async function GET(req: Request) {
   try {
     const prisma = (await import("@/lib/db")).default;
     const { checkTrialStatus } = await import("@/lib/trial");
-    const client = await prisma.client.findUnique({
+    // Check primary API key first, then check extra widgets
+    let client = await prisma.client.findUnique({
       where: { apiKey },
       select: {
         id: true,
@@ -28,9 +29,30 @@ export async function GET(req: Request) {
         welcomeMessage: true,
         brandColor: true,
         businessName: true,
-        isActive: true
+        isActive: true,
+        whiteLabel: true,
+        plan: true,
       },
     });
+
+    // If not found by primary key, search extra widgets
+    if (!client) {
+      const allClients = await prisma.client.findMany({
+        where: { extraWidgets: { contains: apiKey } },
+        select: {
+          id: true, agentName: true, welcomeMessage: true, brandColor: true,
+          businessName: true, isActive: true, whiteLabel: true, plan: true,
+        },
+      });
+      if (allClients.length > 0) {
+        const found = allClients[0];
+        // Block extra widgets if client downgraded to Starter (only 1 widget allowed)
+        if (found.plan === "starter") {
+          return NextResponse.json({ error: "Widget disabled. Please upgrade your plan." }, { status: 403 });
+        }
+        client = found;
+      }
+    }
 
     if (client) {
       // Check trial expiry
@@ -48,6 +70,7 @@ export async function GET(req: Request) {
         welcomeMessage: client.welcomeMessage,
         brandColor: client.brandColor,
         businessName: client.businessName,
+        whiteLabel: client.whiteLabel || false,
       }, { headers: { "Access-Control-Allow-Origin": "*" } });
     }
   } catch {

@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { hash } from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
-import { PLANS } from "@/lib/paypal";
+import { PLANS, generateWidgetId } from "@/lib/paypal";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -52,6 +52,7 @@ export async function POST(req: Request) {
 
   const passwordHash = await hash(password, 12);
   const apiKey = `cai_${uuidv4().replace(/-/g, "")}`;
+  const widgetId = generateWidgetId();
   const planKey = (plan || "starter") as keyof typeof PLANS;
   const monthlyLimit = PLANS[planKey]?.monthlyLimit || 1000;
 
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
         create: {
           id: uuidv4(),
           businessName,
+          widgetId,
           apiKey,
           plan: planKey,
           monthlyLimit,
@@ -79,6 +81,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     id: user.client!.id,
+    widgetId,
     apiKey,
     email: user.email,
     businessName,

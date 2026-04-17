@@ -32,6 +32,7 @@ model Client {
   website         String    @default("")
 
   // License & Access Control
+  widgetId        String    @unique  // Unique widget identifier for embed code
   apiKey          String    @unique  // Widget authentication key
   isActive        Boolean   @default(true) // Master kill switch
   plan            String    @default("starter") // starter, professional, enterprise
@@ -52,10 +53,22 @@ model Client {
   // Notifications
   notifyEmail     String    @default("") // Email to receive lead notifications
   notifyOnLead    Boolean   @default(true)
+  notifyPhone     String    @default("") // Phone for SMS alerts (Pro+Enterprise)
 
   // Calendar/Booking
   calendarLink    String    @default("") // Calendly/Google Calendar URL for bookings
   businessHours   String    @default("Monday-Friday 9am-6pm")
+
+  // Integrations (Pro+Enterprise)
+  webhookUrl      String    @default("") // Zapier/CRM webhook URL — fires on new leads
+  extraWidgets    String    @default("[]") // JSON array of extra widgets [{widgetId, apiKey, name}]
+
+  // Enterprise features
+  whiteLabel      Boolean   @default(false) // Hide "Powered by CloserAI" in widget
+
+  // Admin feature overrides (JSON: { "featureKey": true/false, ... })
+  // Overrides the plan's default for specific features. Empty {} = use plan defaults.
+  customFeatures  String    @default("{}")
 
   // Usage Limits
   monthlyLimit    Int       @default(1000) // conversations per month
@@ -65,9 +78,24 @@ model Client {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  leads           Lead[]
-  conversations   Conversation[]
-  properties      Property[]
+  leads             Lead[]
+  conversations     Conversation[]
+  properties        Property[]
+  deals             Deal[]
+  tasks             Task[]
+  campaigns         Campaign[]
+  notes             Note[]
+  activities        Activity[]
+  teamMembers       TeamMember[]
+  callLogs          CallLog[]
+  documents         Document[]
+  transactions      Transaction[]
+  homeValuations    HomeValuation[]
+  landingPages      LandingPage[]
+  socialPosts       SocialPost[]
+  emailLogs         EmailLog[]
+  smsLogs           SmsLog[]
+  smartPlans        SmartPlan[]
 }
 
 // Captured leads from chat conversations
@@ -98,6 +126,10 @@ model Lead {
   updatedAt     DateTime  @updatedAt
 
   conversations Conversation[]
+  deals         Deal[]
+  tasks         Task[]
+  noteEntries   Note[]
+  activities    Activity[]
 }
 
 // Chat conversations
@@ -139,6 +171,456 @@ model Notification {
   metadata  String   @default("") // JSON string with extra data (email, amount, plan, etc.)
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+// Deals — sales pipeline with stages, value, expected commission
+model Deal {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  lead          Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  title         String
+  description   String    @default("")
+
+  // Pipeline stage
+  stage         String    @default("new") // new, qualified, showing, offer, contract, closed_won, closed_lost
+  probability   Int       @default(20)    // 0-100 likelihood
+  priority      String    @default("medium") // low, medium, high
+
+  // Value
+  propertyValue Float     @default(0)     // Expected property price
+  commission    Float     @default(0)     // Expected commission
+  currency      String    @default("USD")
+
+  // Dates
+  expectedClose DateTime?
+  actualClose   DateTime?
+
+  // Lost reason (if closed_lost)
+  lostReason    String    @default("")
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tasks         Task[]
+  notes         Note[]
+  activities    Activity[]
+
+  @@index([clientId, stage])
+}
+
+// Tasks — to-dos per lead, deal, or standalone
+model Task {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  lead          Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  dealId        String?
+  deal          Deal?     @relation(fields: [dealId], references: [id], onDelete: SetNull)
+
+  title         String
+  description   String    @default("")
+  type          String    @default("follow_up") // follow_up, call, email, showing, meeting, document, other
+  priority      String    @default("medium") // low, medium, high, urgent
+  status        String    @default("pending") // pending, in_progress, completed, cancelled
+
+  dueDate       DateTime?
+  completedAt   DateTime?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([clientId, status])
+  @@index([clientId, dueDate])
+}
+
+// Campaigns — email drip sequences
+model Campaign {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  name          String
+  description   String    @default("")
+  type          String    @default("drip") // drip, broadcast, nurture, re_engagement
+  status        String    @default("draft") // draft, active, paused, archived
+
+  // Targeting
+  triggerEvent  String    @default("manual") // manual, new_lead, lead_qualified, stage_change, date_based
+  targetSegment String    @default("all") // all, hot, warm, cold, custom
+
+  // Stats
+  totalSent     Int       @default(0)
+  totalOpened   Int       @default(0)
+  totalClicked  Int       @default(0)
+  totalReplied  Int       @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  steps         CampaignStep[]
+
+  @@index([clientId, status])
+}
+
+// Campaign Steps — individual emails in a drip sequence
+model CampaignStep {
+  id            String    @id @default(uuid())
+  campaignId    String
+  campaign      Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  order         Int       @default(1)        // Order in the sequence
+  channel       String    @default("email")  // email, sms
+  delayDays     Int       @default(0)        // Days after previous step
+  delayHours    Int       @default(0)        // Additional hours
+
+  subject       String    @default("")
+  body          String    @default("")
+
+  // Stats per step
+  sent          Int       @default(0)
+  opened        Int       @default(0)
+  clicked       Int       @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([campaignId, order])
+}
+
+// Notes — free-text notes on leads or deals
+model Note {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  lead          Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  dealId        String?
+  deal          Deal?     @relation(fields: [dealId], references: [id], onDelete: SetNull)
+
+  content       String
+  pinned        Boolean   @default(false)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([clientId, leadId])
+  @@index([clientId, dealId])
+}
+
+// Activity — timeline of events on a lead or deal
+model Activity {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  lead          Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  dealId        String?
+  deal          Deal?     @relation(fields: [dealId], references: [id], onDelete: SetNull)
+
+  type          String    // lead_created, lead_updated, conversation_started, email_sent, email_opened, task_created, task_completed, note_added, deal_created, stage_changed, property_matched, campaign_enrolled
+  title         String
+  description   String    @default("")
+  metadata      String    @default("") // JSON with event data
+
+  createdAt     DateTime  @default(now())
+
+  @@index([clientId, createdAt])
+  @@index([leadId, createdAt])
+  @@index([dealId, createdAt])
+}
+
+// Team Members — multi-user accounts per client (brokerage team)
+model TeamMember {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  email         String
+  name          String
+  role          String    @default("agent") // owner, admin, manager, agent
+  status        String    @default("active") // active, invited, suspended
+
+  // Optional auth
+  passwordHash  String    @default("")
+  inviteToken   String    @default("")
+
+  // Assignment
+  assignedLeads Int       @default(0)
+  closedDeals   Int       @default(0)
+  commission    Float     @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([clientId, email])
+  @@index([clientId, status])
+}
+
+// Call Logs — track every call made through the Power Dialer
+model CallLog {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  dealId        String?
+  teamMemberId  String?
+
+  direction     String    @default("outbound") // outbound, inbound
+  phoneNumber   String
+  durationSec   Int       @default(0)
+  outcome       String    @default("pending") // connected, no_answer, voicemail, wrong_number, scheduled_callback, qualified, not_interested
+  notes         String    @default("")
+  recording     String    @default("") // URL if recorded
+  cost          Float     @default(0)   // Cost in USD
+
+  createdAt     DateTime  @default(now())
+
+  @@index([clientId, createdAt])
+}
+
+// Documents — files attached to deals/leads
+model Document {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  dealId        String?
+  transactionId String?
+
+  name          String
+  type          String    @default("other") // contract, disclosure, inspection, preapproval, listing_agreement, other
+  fileUrl       String    @default("")
+  fileSize      Int       @default(0)
+  status        String    @default("pending") // pending, signed, reviewed, archived
+  mimeType      String    @default("")
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([clientId, createdAt])
+}
+
+// Transactions — deals moving through closing with documents
+model Transaction {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  dealId        String?
+  leadId        String?
+
+  title         String
+  propertyAddress String  @default("")
+  buyerName     String    @default("")
+  sellerName    String    @default("")
+  agentSide     String    @default("buyer") // buyer, seller, dual
+
+  contractPrice Float     @default(0)
+  commissionPct Float     @default(3.0)
+  commissionAmt Float     @default(0)
+
+  stage         String    @default("under_contract") // under_contract, inspection, appraisal, financing, title, ready_to_close, closed, fell_through
+  contractDate  DateTime?
+  closingDate   DateTime?
+  actualClose   DateTime?
+
+  milestones    String    @default("[]") // JSON array
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([clientId, stage])
+}
+
+// Home Valuations — seller lead magnet
+model HomeValuation {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+
+  // Input
+  address       String
+  city          String    @default("")
+  state         String    @default("")
+  zipCode       String    @default("")
+  bedrooms      Int       @default(3)
+  bathrooms     Int       @default(2)
+  sqft          Int       @default(0)
+  yearBuilt     Int       @default(0)
+  propertyType  String    @default("single_family")
+  condition     String    @default("good") // excellent, good, fair, poor
+
+  // Output
+  estimatedValue Float     @default(0)
+  valueRangeLow  Float     @default(0)
+  valueRangeHigh Float     @default(0)
+  confidence     Int       @default(75) // 0-100
+  methodology    String    @default("") // short text
+
+  // Contact
+  ownerName     String    @default("")
+  ownerEmail    String    @default("")
+  ownerPhone    String    @default("")
+
+  createdAt     DateTime  @default(now())
+
+  @@index([clientId, createdAt])
+}
+
+// Landing Pages — custom pages for lead gen
+model LandingPage {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  slug          String    // URL-safe identifier
+  title         String
+  headline      String    @default("")
+  subheadline   String    @default("")
+  template      String    @default("seller_leads") // seller_leads, buyer_guide, neighborhood, open_house, valuation, custom
+  content       String    @default("") // JSON blob with page content
+  ctaText       String    @default("Get Started")
+  ctaUrl        String    @default("")
+
+  brandColor    String    @default("#2563eb")
+  heroImage     String    @default("")
+  published     Boolean   @default(false)
+
+  // Stats
+  views         Int       @default(0)
+  leadsCaptured Int       @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([clientId, slug])
+  @@index([clientId, published])
+}
+
+// Social Posts — scheduler + queue
+model SocialPost {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  platform      String    // facebook, instagram, linkedin, twitter, all
+  content       String
+  imageUrl      String    @default("")
+  link          String    @default("")
+  hashtags      String    @default("")
+
+  scheduledFor  DateTime?
+  publishedAt   DateTime?
+  status        String    @default("draft") // draft, scheduled, published, failed
+
+  // Stats
+  impressions   Int       @default(0)
+  engagements   Int       @default(0)
+  clicks        Int       @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([clientId, scheduledFor])
+  @@index([clientId, status])
+}
+
+// Email Logs — actual sends via SendGrid
+model EmailLog {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  campaignId    String?
+  campaignStepId String?
+
+  toEmail       String
+  fromEmail     String
+  subject       String
+  body          String    @default("")
+
+  status        String    @default("queued") // queued, sent, delivered, opened, clicked, bounced, failed
+  providerId    String    @default("") // SendGrid message ID
+  error         String    @default("")
+
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  openedAt      DateTime?
+  clickedAt     DateTime?
+
+  createdAt     DateTime  @default(now())
+
+  @@index([clientId, status])
+  @@index([clientId, createdAt])
+}
+
+// SMS Logs — actual sends via Twilio
+model SmsLog {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  leadId        String?
+  campaignId    String?
+
+  toPhone       String
+  fromPhone     String
+  body          String
+
+  status        String    @default("queued") // queued, sent, delivered, failed
+  providerId    String    @default("") // Twilio SID
+  error         String    @default("")
+  cost          Float     @default(0)
+
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+
+  createdAt     DateTime  @default(now())
+
+  @@index([clientId, status])
+  @@index([clientId, createdAt])
+}
+
+// Smart Plans — behavior-triggered automation sequences
+model SmartPlan {
+  id            String    @id @default(uuid())
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  name          String
+  description   String    @default("")
+  status        String    @default("active") // active, paused, archived
+
+  // Trigger
+  triggerType   String    @default("new_lead") // new_lead, lead_score_above, temperature_change, stage_change, no_activity, tag_added, manual
+  triggerValue  String    @default("") // JSON config for the trigger
+
+  // Actions — JSON array of { type, delay, config }
+  actions       String    @default("[]") // JSON array
+
+  totalEnrolled Int       @default(0)
+  totalCompleted Int      @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([clientId, status])
 }
 
 // Property listings (optional - clients can add their listings for AI to reference)

@@ -15,7 +15,18 @@
     "verify": "node scripts/verify-deploy.js",
     "verify:local": "node scripts/verify-deploy.js http://localhost:3000",
     "deploy": "node scripts/safe-deploy.js",
-    "deploy:quick": "npx vercel --prod --yes && npm run verify"
+    "deploy:quick": "npx vercel --prod --yes && npm run verify",
+    "monitor": "node scripts/monitor.js",
+    "monitor:watch": "node scripts/monitor.js --watch",
+    "smoke": "node scripts/smoke-tests.js",
+    "smoke:local": "node scripts/smoke-tests.js --url=http://localhost:3000",
+    "autofix": "node scripts/auto-fix.js",
+    "autoheal": "curl -H \"x-cron-secret: $CRON_SECRET\" https://closerai-app.vercel.app/api/cron/auto-heal",
+    "test:platform": "node scripts/test-platform.js",
+    "test:lifecycle": "node scripts/test-automation-lifecycle.js",
+    "validate:setup": "node scripts/validate-setup.js",
+    "paypal:create-plans": "node scripts/create-paypal-plans-vfinal.js",
+    "health": "curl -s https://closerai-app.vercel.app/api/health | node -e \"const d=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(JSON.stringify(d,null,2))\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
@@ -23,6 +34,8 @@
     "bcryptjs": "^2.4.3",
     "next": "^14.2.21",
     "next-auth": "^4.24.11",
+    "nodemailer": "^7.0.13",
+    "pptxgenjs": "^4.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "uuid": "^11.0.5"

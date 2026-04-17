@@ -23,8 +23,16 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     if (PLANS[planKey]) {
       updateData.monthlyLimit = PLANS[planKey].monthlyLimit;
     }
+    // Auto-toggle white-label based on plan (Enterprise gets it)
+    updateData.whiteLabel = body.plan === "enterprise";
   }
   if (body.monthlyLimit !== undefined) updateData.monthlyLimit = body.monthlyLimit;
+  if (body.whiteLabel !== undefined) updateData.whiteLabel = body.whiteLabel; // allow explicit override
+  if (body.isActive !== undefined) updateData.isActive = body.isActive;
+  if (body.paypalStatus !== undefined) updateData.paypalStatus = body.paypalStatus;
+  if (body.trialEndsAt !== undefined) {
+    updateData.trialEndsAt = body.trialEndsAt ? new Date(body.trialEndsAt) : null;
+  }
   if (body.agentName !== undefined) updateData.agentName = body.agentName;
   if (body.welcomeMessage !== undefined) updateData.welcomeMessage = body.welcomeMessage;
   if (body.systemPrompt !== undefined) updateData.systemPrompt = body.systemPrompt;

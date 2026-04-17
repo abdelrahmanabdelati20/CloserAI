@@ -70,7 +70,7 @@ const PROPERTIES = [
 const STATS = [
   { value: "50+", label: "Languages" },
   { value: "24/7", label: "Always On" },
-  { value: "<2s", label: "Response" },
+  { value: "Instant", label: "Response" },
   { value: "3x", label: "More Leads" },
 ];
 
@@ -541,10 +541,10 @@ export default function DemoPage() {
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-white hover:bg-white/15 transition">
               <div className="text-sm font-semibold text-blue-300 mb-1">STARTER</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl font-bold">$297</span>
+                <span className="text-4xl font-bold">$299</span>
                 <span className="text-white/60">/mo</span>
               </div>
-              <div className="text-xs text-green-300 font-semibold mb-3">$0 setup fee</div>
+              <div className="text-xs text-green-300 font-semibold mb-3">Setup waived on annual</div>
               <ul className="text-sm text-white/80 space-y-1.5">
                 <li>✓ 1 Website Widget</li>
                 <li>✓ 1,000 Conversations/mo</li>
@@ -556,10 +556,10 @@ export default function DemoPage() {
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-gray-900 px-3 py-0.5 rounded-full text-xs font-bold">⭐ MOST POPULAR</div>
               <div className="text-sm font-semibold text-blue-600 mb-1">PROFESSIONAL</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl font-bold">$597</span>
+                <span className="text-4xl font-bold">$799</span>
                 <span className="text-gray-500">/mo</span>
               </div>
-              <div className="text-xs text-green-600 font-semibold mb-3">$0 setup fee</div>
+              <div className="text-xs text-green-600 font-semibold mb-3">Setup waived on annual</div>
               <ul className="text-sm text-gray-700 space-y-1.5">
                 <li>✓ 5 Website Widgets</li>
                 <li>✓ 3,000 Conversations/mo</li>
@@ -570,10 +570,10 @@ export default function DemoPage() {
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-white hover:bg-white/15 transition">
               <div className="text-sm font-semibold text-blue-300 mb-1">ENTERPRISE</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl font-bold">$1,297</span>
+                <span className="text-4xl font-bold">$1,999</span>
                 <span className="text-white/60">/mo</span>
               </div>
-              <div className="text-xs text-green-300 font-semibold mb-3">$0 setup fee</div>
+              <div className="text-xs text-green-300 font-semibold mb-3">Setup waived on annual</div>
               <ul className="text-sm text-white/80 space-y-1.5">
                 <li>✓ Unlimited Widgets</li>
                 <li>✓ 10,000 Conversations/mo</li>
@@ -604,7 +604,7 @@ export default function DemoPage() {
             <h3 className="text-white font-bold text-lg mb-2">Questions? Talk to a human</h3>
             <p className="text-white/70 text-sm mb-4">Email us and we&apos;ll get back to you within 24 hours.</p>
             <a
-              href="mailto:AbdelrahmanAbdelati20@gmail.com"
+              href="https://mail.google.com/mail/?view=cm&to=AbdelrahmanAbdelati20@gmail.com" target="_blank" rel="noopener"
               className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-xl font-medium transition text-sm sm:text-base break-all"
             >
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -640,7 +640,7 @@ export default function DemoPage() {
             <div>
               <h4 className="font-semibold mb-2 text-sm">Contact</h4>
               <ul className="text-sm text-gray-400 space-y-1">
-                <li className="break-all"><a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="hover:text-white">AbdelrahmanAbdelati20@gmail.com</a></li>
+                <li className="break-all"><a href="https://mail.google.com/mail/?view=cm&to=AbdelrahmanAbdelati20@gmail.com" target="_blank" rel="noopener" className="hover:text-white">AbdelrahmanAbdelati20@gmail.com</a></li>
                 <li><a href="/login" className="hover:text-white">Client Login</a></li>
               </ul>
             </div>

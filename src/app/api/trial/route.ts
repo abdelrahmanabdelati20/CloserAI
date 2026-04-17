@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
+import { generateWidgetId } from "@/lib/paypal";
 
 export async function POST(req: Request) {
   try {
@@ -19,12 +20,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Name or business name too long" }, { status: 400 });
     }
 
+    // Normalize email to prevent alias abuse (john+spam@gmail.com → john@gmail.com)
+    let normalizedEmail = email.toLowerCase().trim();
+    const [localPart, domain] = normalizedEmail.split("@");
+    if (domain === "gmail.com" || domain === "googlemail.com") {
+      normalizedEmail = localPart.replace(/\+.*$/, "").replace(/\./g, "") + "@gmail.com";
+    } else {
+      normalizedEmail = localPart.replace(/\+.*$/, "") + "@" + domain;
+    }
+
     // Try to create in database
     try {
       const prisma = (await import("@/lib/db")).default;
 
-      // Check if email already exists
-      const existing = await prisma.user.findUnique({ where: { email } });
+      // Check if email (or normalized version) already exists
+      const existing = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: email.toLowerCase().trim() },
+            { email: normalizedEmail },
+          ],
+        },
+      });
       if (existing) {
         return NextResponse.json({
           error: "An account with this email already exists. Please log in instead."
@@ -35,6 +52,7 @@ export async function POST(req: Request) {
       const password = generatePassword();
       const passwordHash = await hash(password, 12);
       const apiKey = `cai_${uuidv4().replace(/-/g, "")}`;
+      const widgetId = generateWidgetId();
 
       // Create trial account (14 days)
       const trialEndsAt = new Date();
@@ -53,6 +71,7 @@ export async function POST(req: Request) {
               businessName,
               phone: phone || "",
               website: website || "",
+              widgetId,
               apiKey,
               plan: "starter",
               monthlyLimit: 1000,

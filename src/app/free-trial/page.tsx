@@ -99,7 +99,7 @@ export default function FreeTrialPage() {
                 <li>Add your property listings (manual or bulk import)</li>
                 <li>Paste the widget code on your website</li>
                 <li>Watch leads roll in for 14 days — completely free</li>
-                <li>After 14 days, subscribe to keep it running ($297/mo)</li>
+                <li>After 14 days, subscribe to keep it running (from $299/mo — setup waived on annual)</li>
               </ol>
             </div>
 
@@ -125,56 +125,67 @@ export default function FreeTrialPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}>C</div>
-            <span className="text-xl font-bold">Closer<span className="text-blue-600">AI</span></span>
+    <div className="min-h-screen bg-white overflow-x-hidden">
+      {/* Header */}
+      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 gradient-brand rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+              <span className="text-white font-bold text-base">C</span>
+            </div>
+            <span className="text-lg sm:text-xl font-bold tracking-tight">
+              Closer<span className="gradient-text">AI</span>
+            </span>
           </Link>
-          <Link href="/login" className="text-sm text-gray-600 hover:text-blue-600">Already have an account?</Link>
+          <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition">Already have an account?</Link>
         </div>
-      </div>
+      </nav>
 
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="text-center mb-10">
-          <div className="inline-block px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-bold mb-4">
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        {/* Background decorations */}
+        <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+        <div className="absolute top-20 -left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob pointer-events-none"></div>
+        <div className="absolute top-40 -right-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000 pointer-events-none"></div>
+
+        <div className="relative text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs font-semibold tracking-wider uppercase text-green-700 mb-5 shadow-sm">
+            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
             LIMITED TIME: 14-Day Free Trial
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Try CloserAI Free for 14 Days
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-5">
+            Try CloserAI <span className="gradient-text-vivid">Free for 14 Days</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Get your AI real estate assistant running in 5 minutes. No credit card required. Cancel anytime.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mb-10 max-w-3xl mx-auto">
-          <div className="bg-white rounded-2xl p-5 border text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+        <div className="relative grid md:grid-cols-3 gap-4 mb-10 max-w-3xl mx-auto">
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center hover:shadow-premium hover:-translate-y-0.5 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
-            <h3 className="font-bold">5-Min Setup</h3>
-            <p className="text-sm text-gray-500">Paste one line of code</p>
+            <h3 className="font-bold text-gray-900">5-Min Setup</h3>
+            <p className="text-sm text-gray-500 mt-1">Paste one line of code</p>
           </div>
-          <div className="bg-white rounded-2xl p-5 border text-center">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center hover:shadow-premium hover:-translate-y-0.5 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-green-500/30">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             </div>
-            <h3 className="font-bold">No Credit Card</h3>
-            <p className="text-sm text-gray-500">Zero commitment</p>
+            <h3 className="font-bold text-gray-900">No Credit Card</h3>
+            <p className="text-sm text-gray-500 mt-1">Zero commitment</p>
           </div>
-          <div className="bg-white rounded-2xl p-5 border text-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 text-center hover:shadow-premium hover:-translate-y-0.5 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-purple-500/30">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h3 className="font-bold">Full Features</h3>
-            <p className="text-sm text-gray-500">Everything unlocked</p>
+            <h3 className="font-bold text-gray-900">Full Features</h3>
+            <p className="text-sm text-gray-500 mt-1">Everything unlocked</p>
           </div>
         </div>
 
-        <div className="max-w-xl mx-auto">
-          <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-xl p-8 space-y-4">
+        <div className="relative max-w-xl mx-auto">
+          <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-premium-lg border border-gray-200 p-6 sm:p-8 space-y-4">
             {error && (
               <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl text-sm">{error}</div>
             )}
@@ -243,24 +254,39 @@ export default function FreeTrialPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-4 rounded-xl text-white font-bold text-lg transition hover:opacity-90 disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%)" }}
+              className="group w-full gradient-brand text-white py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0"
             >
-              {submitting ? "Setting up your account..." : "Start My Free 14-Day Trial"}
+              <span className="inline-flex items-center justify-center gap-2">
+                {submitting ? "Setting up your account..." : "Start My Free 14-Day Trial"}
+                {!submitting && (
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                )}
+              </span>
             </button>
 
-            <p className="text-xs text-gray-500 text-center">
-              No credit card required. Cancel anytime. Your AI will be ready in 60 seconds.
-            </p>
+            <div className="flex items-center justify-center gap-4 text-xs text-gray-500 pt-2">
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                No credit card
+              </div>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                Cancel anytime
+              </div>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                Ready in 60s
+              </div>
+            </div>
           </form>
         </div>
 
-        <div className="max-w-xl mx-auto mt-8 text-center text-sm text-gray-500">
+        <div className="relative max-w-xl mx-auto mt-8 text-center text-sm text-gray-500">
           <p>
-            Already have an account? <Link href="/login" className="text-blue-600 font-medium">Sign in</Link>
+            Already have an account? <Link href="/login" className="text-blue-600 font-semibold hover:underline">Sign in</Link>
           </p>
           <p className="mt-3">
-            Questions? Email <a href="mailto:AbdelrahmanAbdelati20@gmail.com" className="text-blue-600 font-medium">AbdelrahmanAbdelati20@gmail.com</a>
+            Questions? Email <a href="https://mail.google.com/mail/?view=cm&to=AbdelrahmanAbdelati20@gmail.com" target="_blank" rel="noopener" className="text-blue-600 font-semibold hover:underline">AbdelrahmanAbdelati20@gmail.com</a>
           </p>
         </div>
       </div>
