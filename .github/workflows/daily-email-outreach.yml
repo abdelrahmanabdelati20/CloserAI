@@ -50,5 +50,6 @@ jobs:
             echo "No log changes to commit."
           else
             git commit -m "chore: daily blast progress [skip ci]"
+            git pull --rebase origin master
             git push
           fi
