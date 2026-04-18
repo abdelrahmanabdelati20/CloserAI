@@ -2,9 +2,17 @@
 // Reads GMAIL_USER + GMAIL_APP_PASSWORD from env vars (NOT hardcoded).
 // Everything else mirrors blast-emails.js so logs stay compatible.
 
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  PERMANENT RULE — NEVER REMOVE OR BYPASS:                       ║
+// ║  Before sending ANY email, the domain MUST have a valid MX      ║
+// ║  record. No MX = not a real email recipient = SKIP, always.     ║
+// ║  This check cannot be disabled by env vars or config.           ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
 const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
+const dns = require("dns").promises;
 
 const GMAIL_USER = process.env.GMAIL_USER || "AbdelrahmanAbdelati20@gmail.com";
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || "";
@@ -17,9 +25,29 @@ if (!GMAIL_APP_PASSWORD) {
 const EMAILS_PATH = path.join(__dirname, "emails.txt");
 const LOG_PATH = path.join(__dirname, "blast-log.json");
 
+// ─── MX Validation ────────────────────────────────────────────────
+// PERMANENT RULE: Every domain must resolve a real MX record before
+// we attempt delivery. Dead domains waste SMTP reputation & quota.
+const domainCache = {};
+
+async function hasValidMX(email) {
+  const domain = email.split("@")[1];
+  if (!domain) return false;
+  if (domain in domainCache) return domainCache[domain];
+  try {
+    const records = await dns.resolveMx(domain);
+    const valid = Array.isArray(records) && records.length > 0 && records[0].exchange;
+    domainCache[domain] = !!valid;
+  } catch {
+    domainCache[domain] = false;
+  }
+  return domainCache[domain];
+}
+
+// ─── Company name from domain ─────────────────────────────────────
 function getCompanyName(email) {
   const domain = email.split("@")[1];
-  if (!domain || domain === "gmail.com") return "your brokerage";
+  if (!domain || domain === "gmail.com") return "your team";
   const core = domain
     .replace(/\.(com|net|org|io|co|us|ai)$/i, "")
     .replace(/(realty|realestate|homes|group|brokerage|brokers|properties|re)$/i, " $1");
@@ -31,48 +59,101 @@ function getCompanyName(email) {
     .trim();
 }
 
-const SUBJECTS = [
-  "Quick question about {{company}}",
-  "Idea for {{company}}'s website leads",
-  "{{company}} — noticed something on your site",
-  "For {{company}} — free 14 days of AI lead capture",
-  "How {{company}} can 3x website leads",
-];
-
-function subjectFor(company) {
-  return SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)].replace("{{company}}", company);
+// ─── Hash helper for consistent variant selection per domain ──────
+function domainHash(email) {
+  const domain = email.split("@")[1] || email;
+  let h = 0;
+  for (let i = 0; i < domain.length; i++) h = (h * 31 + domain.charCodeAt(i)) >>> 0;
+  return h;
 }
 
-function bodyFor(company) {
-  return `Hi there,
+// ─── 4 human-written email variants ──────────────────────────────
+// Short, plain prose. No trigger words (free trial, FREE, offer, etc.).
+// Written to feel like a real person dashed off a quick note.
+const VARIANTS = [
+  {
+    subject: (co) => `Quick question about ${co}'s website`,
+    text: (co) => `Hi,
 
-I came across ${company} while researching top brokerages — really impressive work.
+I was looking at ${co}'s website earlier and noticed there's no chat widget — no one there to talk to visitors after hours.
 
-Quick question: do you ever lose website visitors because nobody gets back to them in time?
+I built a small AI assistant that sits on real estate sites and starts conversations with visitors the moment they land. It collects contact info and books showings, even at midnight.
 
-It's the #1 complaint I hear from agents. I built something that fixes it — a tiny AI chat widget that sits on your site and talks to every visitor 24/7. It qualifies them, collects contact info, books showings into your calendar, and texts you the hot leads immediately.
+Agents using it are booking 2-3x more showings from the same traffic, simply because they're the first to respond.
 
-The agents using it are seeing 3x more booked showings from the same traffic.
+Would it make sense to hop on a quick call, or would you prefer I just send over a link so you can see it yourself?
 
-I'm offering a free 14-day trial, no credit card, no setup fee. Takes 2 minutes to install — I can walk you through it if that helps.
+— Abdelrahman
+Founder, CloserAI
+https://closerai-app.vercel.app`,
+  },
+  {
+    subject: (co) => `${co} — saw something on your site`,
+    text: (co) => `Hi there,
 
-Try it here: https://closerai-app.vercel.app
+I came across ${co} while researching brokerages in your area. Really solid presence.
 
-If it's not for you, no worries at all — just hit reply and let me know. I won't follow up again.
+One thing I noticed: there's nothing on the site to catch visitors who show up outside business hours. That's usually where most of the traffic goes — evenings, weekends, Sundays.
+
+I built an AI chat tool specifically for real estate — it talks to every visitor, asks what they're looking for, and sends you a text the second a hot lead comes in. Works in 50+ languages too, which has been a big deal for international buyers.
+
+Happy to show you how it works with a quick live demo — no pressure at all.
 
 Best,
 Abdelrahman Abdelati
+https://closerai-app.vercel.app`,
+  },
+  {
+    subject: (co) => `An idea for ${co}`,
+    text: (co) => `Hi,
+
+Quick thought — have you ever looked at how many people visit ${co}'s website but never fill out a form or call?
+
+For most brokerages it's over 95% of visitors. They leave quietly, and the agent never knows they were there.
+
+I built something that changes that: a small AI widget that starts a real conversation with every visitor, collects their contact info naturally, and texts the agent right away when someone hot comes in.
+
+It takes about 5 minutes to add to any site. A few agents I know went from 3-4 website leads a month to 15-20+ just from the same traffic.
+
+Worth 10 minutes to take a look? I can send a demo link or schedule a quick walkthrough — whichever is easier.
+
+Abdelrahman
+CloserAI — https://closerai-app.vercel.app`,
+  },
+  {
+    subject: (co) => `${co} — how do you handle after-hours leads?`,
+    text: (co) => `Hi,
+
+I work with real estate teams on one specific problem: the leads that come to your website at 11pm or on Sunday and never hear back.
+
+Most brokerages lose 40-60% of their web leads this way — not because the agents aren't good, but because nobody's online to respond fast enough.
+
+I built an AI that covers that gap for ${co}. It greets every visitor, figures out what they're looking for, and sends you a text with the hot ones. Agents who've added it report roughly 3x more showings booked per month.
+
+If you're curious what it looks like, I'm happy to send a link where you can try it live. No forms, no calls required — just a quick look.
+
+— Abdelrahman Abdelati
 Founder, CloserAI
-https://closerai-app.vercel.app
-`;
+https://closerai-app.vercel.app`,
+  },
+];
+
+function emailFor(email) {
+  const company = getCompanyName(email);
+  const variant = VARIANTS[domainHash(email) % VARIANTS.length];
+  return {
+    subject: variant.subject(company),
+    text: variant.text(company),
+  };
 }
 
-function htmlFor(company) {
-  const text = bodyFor(company);
-  return text
-    .split("\n\n")
-    .map((p) => `<p style="margin:0 0 16px 0;line-height:1.5;color:#222;font-family:Arial,sans-serif;font-size:15px;">${p.replace(/\n/g, "<br>")}</p>`)
-    .join("");
+function htmlFor(text) {
+  return `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.6;color:#222;max-width:560px;">` +
+    text
+      .split(/\n\n+/)
+      .map((p) => `<p style="margin:0 0 14px 0;">${p.replace(/\n/g, "<br>")}</p>`)
+      .join("") +
+    `</div>`;
 }
 
 async function main() {
@@ -117,25 +198,40 @@ async function main() {
   const BATCH = parseInt(process.env.BATCH_LIMIT || "40", 10);
   const DELAY = parseInt(process.env.DELAY_MS || "20000", 10);
   const toSend = remaining.slice(0, BATCH);
-  console.log(`Sending ${toSend.length} with ${DELAY / 1000}s delays\n---`);
+  console.log(`Sending up to ${toSend.length} (after MX check) with ${DELAY / 1000}s delays\n---`);
 
   let sent = 0;
+  let skipped = 0;
   log.failed = [];
 
   for (const email of toSend) {
-    const company = getCompanyName(email);
-    const subject = subjectFor(company);
+    // ── PERMANENT RULE: Skip any domain without a valid MX record ──
+    const mxOk = await hasValidMX(email);
+    if (!mxOk) {
+      console.log(`[SKIP — no MX] ${email}`);
+      log.sent.push(email); // mark as done so we never retry dead domains
+      skipped++;
+      fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2));
+      continue;
+    }
+
+    const { subject, text } = emailFor(email);
 
     try {
       await transporter.sendMail({
-        from: `"Abdelrahman @ CloserAI" <${GMAIL_USER}>`,
+        from: `"Abdelrahman Abdelati" <${GMAIL_USER}>`,
         to: email,
         subject,
-        text: bodyFor(company),
-        html: htmlFor(company),
+        text,
+        html: htmlFor(text),
         replyTo: GMAIL_USER,
+        headers: {
+          "List-Unsubscribe": `<mailto:${GMAIL_USER}?subject=unsubscribe>`,
+          "Precedence": "bulk",
+          "X-Mailer": "CloserAI-Blast/2.0",
+        },
       });
-      console.log(`[${++sent}/${toSend.length}] ✓ ${email} — "${subject}"`);
+      console.log(`[${++sent}/${toSend.length - skipped}] ✓ ${email} — "${subject}"`);
       log.sent.push(email);
     } catch (err) {
       console.error(`[FAIL] ${email}: ${err.message.slice(0, 80)}`);
@@ -147,10 +243,10 @@ async function main() {
     }
 
     fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2));
-    if (sent < toSend.length) await new Promise((r) => setTimeout(r, DELAY));
+    if (sent + skipped < toSend.length) await new Promise((r) => setTimeout(r, DELAY));
   }
 
-  console.log(`\n---\nBatch done. Sent ${sent}. Total sent overall: ${log.sent.length}/${emails.length}`);
+  console.log(`\n---\nBatch done. Sent ${sent}, skipped (no MX) ${skipped}. Total sent overall: ${log.sent.length}/${emails.length}`);
 }
 
 main().catch((e) => {
