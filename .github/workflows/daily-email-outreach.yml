@@ -1,10 +1,14 @@
 name: Daily Email Outreach
 
-# Runs every weekday at 14:08 UTC (~10:08 AM ET / 9:08 AM CT / 7:08 AM PT)
-# in GitHub's cloud — NO laptop, NO Claude, NO Chrome needed.
+# 🚨 SCHEDULE DISABLED 2026-04-26 — Gmail account
+# AbdelrahmanAbdelati20@gmail.com was suspended (SMTP error 534-5.7.14)
+# after sustained cold-outreach volume. DO NOT re-enable this cron until:
+#   (a) the Gmail account is recovered AND
+#   (b) sending is migrated to Resend/SendGrid on outreach@closerai.org
+#       with DKIM + SPF + DMARC properly configured.
+# Manual workflow_dispatch is left intact so the script can still be
+# triggered for testing once a healthy sender is wired up.
 on:
-  schedule:
-    - cron: "8 14 * * 1-5"
   workflow_dispatch:
     inputs:
       batch_limit:
