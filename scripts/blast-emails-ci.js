@@ -45,19 +45,48 @@ async function hasValidMX(email) {
   return domainCache[domain];
 }
 
-// ─── Company name from domain ─────────────────────────────────────
+// ─── Company name from domain (best-effort, human-readable) ──────
+// Goal: "thefirmmemphis.com" → "The Firm Memphis", "redrockrg.com"
+// → "Red Rock RG", "208boiserealestate.com" → "208 Boise Real Estate".
+// Recognizes common real-estate compound words and inserts spaces.
 function getCompanyName(email) {
-  const domain = email.split("@")[1];
+  const domain = (email.split("@")[1] || "").toLowerCase();
   if (!domain || domain === "gmail.com") return "your team";
-  const core = domain
-    .replace(/\.(com|net|org|io|co|us|ai)$/i, "")
-    .replace(/(realty|realestate|homes|group|brokerage|brokers|properties|re)$/i, " $1");
+
+  // Strip TLD
+  let core = domain.replace(/\.(com|net|org|io|co|us|ai|info|biz|tv)$/i, "");
+  // Strip subdomain prefixes that aren't useful
+  core = core.replace(/^(www|mail|email|info)\./i, "");
+  // Take last segment if there's still a sub (e.g., "boise.kw.com")
+  if (core.includes(".")) core = core.split(".").pop();
+
+  // Insert spaces around common real-estate compound words so they read naturally
+  const compounds = [
+    "realestate", "realty", "homes", "properties", "brokerage",
+    "brokers", "broker", "team", "group", "advisors", "associates",
+    "company", "house", "boise", "memphis", "tacoma", "knoxville",
+    "spokane", "omaha", "louisville", "chattanooga", "asheville",
+    "tallahassee", "birmingham", "neworleans", "nola", "dsm",
+    "mccarty", "iowarealty", "cope", "cranere", "kw",
+  ];
+  for (const w of compounds) {
+    const re = new RegExp(`(?<=[a-z0-9])${w}(?=[a-z0-9]|$)`, "gi");
+    core = core.replace(re, ` ${w} `);
+  }
+
+  // Hyphens → spaces, collapse, title-case
   return core
-    .split(/[-.]/)
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
     .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(" ")
-    .trim();
+    .map((w) => {
+      // Keep all-caps for short acronyms like "RG", "NAI", "KW"
+      if (w.length <= 3 && !/\d/.test(w)) return w.toUpperCase();
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    })
+    .join(" ");
 }
 
 // ─── Hash helper for consistent variant selection per domain ──────
@@ -68,74 +97,68 @@ function domainHash(email) {
   return h;
 }
 
-// ─── 4 human-written email variants ──────────────────────────────
-// Short, plain prose. No trigger words (free trial, FREE, offer, etc.).
-// Written to feel like a real person dashed off a quick note.
+// ─── Human-written email variants ────────────────────────────────
+// Short, plain prose. No spam-trigger words. Written like a quick
+// personal note, not a marketing blast. Subject lines stay neutral.
 const VARIANTS = [
   {
-    subject: (co) => `Quick question about ${co}'s website`,
+    subject: () => `quick question about your website`,
     text: (co) => `Hi,
 
-I was looking at ${co}'s website earlier and noticed there's no chat widget — no one there to talk to visitors after hours.
+I was looking at the ${co} site earlier and noticed there's no live chat for visitors after hours.
 
-I built a small AI assistant that sits on real estate sites and starts conversations with visitors the moment they land. It collects contact info and books showings, even at midnight.
+I built a small AI assistant that sits on real estate sites and starts a real conversation with every visitor — answers questions, qualifies them, and texts the agent the second a hot lead comes in. Even at midnight.
 
-Agents using it are booking 2-3x more showings from the same traffic, simply because they're the first to respond.
+A few agents using it have gone from 3-4 web leads a month to 15-20 just from the same traffic.
 
-Would it make sense to hop on a quick call, or would you prefer I just send over a link so you can see it yourself?
-
-— Abdelrahman
-Founder, CloserAI
-https://closerai.org`,
-  },
-  {
-    subject: (co) => `${co} — saw something on your site`,
-    text: (co) => `Hi there,
-
-I came across ${co} while researching brokerages in your area. Really solid presence.
-
-One thing I noticed: there's nothing on the site to catch visitors who show up outside business hours. That's usually where most of the traffic goes — evenings, weekends, Sundays.
-
-I built an AI chat tool specifically for real estate — it talks to every visitor, asks what they're looking for, and sends you a text the second a hot lead comes in. Works in 50+ languages too, which has been a big deal for international buyers.
-
-Happy to show you how it works with a quick live demo — no pressure at all.
-
-Best,
-Abdelrahman Abdelati
-https://closerai.org`,
-  },
-  {
-    subject: (co) => `An idea for ${co}`,
-    text: (co) => `Hi,
-
-Quick thought — have you ever looked at how many people visit ${co}'s website but never fill out a form or call?
-
-For most brokerages it's over 95% of visitors. They leave quietly, and the agent never knows they were there.
-
-I built something that changes that: a small AI widget that starts a real conversation with every visitor, collects their contact info naturally, and texts the agent right away when someone hot comes in.
-
-It takes about 5 minutes to add to any site. A few agents I know went from 3-4 website leads a month to 15-20+ just from the same traffic.
-
-Worth 10 minutes to take a look? I can send a demo link or schedule a quick walkthrough — whichever is easier.
-
-Abdelrahman
-CloserAI — https://closerai.org`,
-  },
-  {
-    subject: (co) => `${co} — how do you handle after-hours leads?`,
-    text: (co) => `Hi,
-
-I work with real estate teams on one specific problem: the leads that come to your website at 11pm or on Sunday and never hear back.
-
-Most brokerages lose 40-60% of their web leads this way — not because the agents aren't good, but because nobody's online to respond fast enough.
-
-I built an AI that covers that gap for ${co}. It greets every visitor, figures out what they're looking for, and sends you a text with the hot ones. Agents who've added it report roughly 3x more showings booked per month.
-
-If you're curious what it looks like, I'm happy to send a link where you can try it live. No forms, no calls required — just a quick look.
+Would it be useful if I sent over a link where you can try it live on your own site? No forms, no calls.
 
 — Abdelrahman Abdelati
-Founder, CloserAI
+CloserAI
 https://closerai.org`,
+  },
+  {
+    subject: () => `saw your real estate site`,
+    text: (co) => `Hi,
+
+Came across the ${co} site while looking at brokerages in your market. Solid presence.
+
+One thing I help with specifically: catching the visitors who land on your site at 9pm or on Sunday. Most brokerages lose those — nobody's online to respond fast enough, so they go to whoever does answer first.
+
+I built an AI chat widget for real estate that handles this 24/7, in 50+ languages. It collects contact info naturally and pings the agent on hot leads.
+
+Happy to show you the live demo if you're curious — closerai.org. Takes about 5 minutes to add to any site.
+
+Best,
+Abdelrahman Abdelati`,
+  },
+  {
+    subject: () => `idea for your brokerage`,
+    text: (co) => `Hi,
+
+Quick thought for the ${co} team: have you ever looked at how many visitors land on your site and leave without filling anything out?
+
+For most brokerages it's over 95%. They quietly disappear and the agents never know they were there.
+
+I built a small AI widget that starts a real conversation with every visitor, qualifies them, and texts the right agent the second someone hot comes in. It's not a chatbot script — it's a real conversation, and it works around the clock.
+
+Worth 10 min to take a look? Just hit closerai.org — try it live, no forms.
+
+Abdelrahman Abdelati
+CloserAI`,
+  },
+  {
+    subject: () => `how do you handle after-hours leads?`,
+    text: (co) => `Hi,
+
+Most real estate sites lose 40-60% of their web leads to one specific gap: visitors that show up at 11pm or on a weekend and never hear back until Monday.
+
+I built an AI for the ${co} team that covers exactly that — greets every visitor, figures out what they're looking for, and texts the agent on the hot ones. Agents using it report ~3x more showings booked from the same site traffic.
+
+If it's useful, you can try it live right now on closerai.org — no signup, no forms.
+
+— Abdelrahman Abdelati
+Founder, CloserAI`,
   },
 ];
 
@@ -209,10 +232,15 @@ async function main() {
     process.exit(1);
   }
 
+  // Personal Gmail caps cold-outreach reputation hard above ~50/day.
+  // Lower volume + jittered delay = better inbox placement.
   const BATCH = parseInt(process.env.BATCH_LIMIT || "40", 10);
-  const DELAY = parseInt(process.env.DELAY_MS || "20000", 10);
+  const DELAY_MIN = parseInt(process.env.DELAY_MIN_MS || "30000", 10);
+  const DELAY_MAX = parseInt(process.env.DELAY_MAX_MS || "75000", 10);
+  const jitterDelay = () =>
+    DELAY_MIN + Math.floor(Math.random() * (DELAY_MAX - DELAY_MIN));
   const toSend = remaining.slice(0, BATCH);
-  console.log(`Sending up to ${toSend.length} (after MX check) with ${DELAY / 1000}s delays\n---`);
+  console.log(`Sending up to ${toSend.length} (after MX check) with ${DELAY_MIN/1000}-${DELAY_MAX/1000}s jittered delays\n---`);
 
   let sent = 0;
   let skipped = 0;
@@ -258,7 +286,7 @@ async function main() {
     }
 
     fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2));
-    if (sent + skipped < toSend.length) await new Promise((r) => setTimeout(r, DELAY));
+    if (sent + skipped < toSend.length) await new Promise((r) => setTimeout(r, jitterDelay()));
   }
 
   console.log(`\n---\nBatch done. Sent ${sent}, skipped (no MX) ${skipped}. Total sent overall: ${log.sent.length}/${emails.length}`);
