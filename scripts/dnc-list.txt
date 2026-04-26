@@ -1,0 +1,27 @@
+# CloserAI Do-Not-Contact list.
+# One email per line. Lowercase. Lines starting with # are comments.
+# Append unsubscribes here, never send to anyone in this file again.
+
+# Brand HQ catch-alls — these are corporate marketing inboxes that
+# auto-flag cold outreach as spam. Sending here hurts deliverability
+# for the whole queue. NEVER target.
+info@remax.com
+info@century21.com
+info@coldwellbanker.com
+info@sothebysrealty.com
+info@bhhs.com
+info@kw.com
+info@compass.com
+info@redfin.com
+info@zillow.com
+info@realtor.com
+info@trulia.com
+info@bhgre.com
+info@exprealty.com
+info@douglaselliman.com
+info@corcoran.com
+info@howardhanna.com
+info@weichert.com
+info@longandfoster.com
+info@windermere.com
+info@johnlscott.com

@@ -24,6 +24,7 @@ if (!GMAIL_APP_PASSWORD) {
 
 const EMAILS_PATH = path.join(__dirname, "emails.txt");
 const LOG_PATH = path.join(__dirname, "blast-log.json");
+const DNC_PATH = path.join(__dirname, "dnc-list.txt");
 
 // ─── MX Validation ────────────────────────────────────────────────
 // PERMANENT RULE: Every domain must resolve a real MX record before
@@ -85,7 +86,7 @@ Would it make sense to hop on a quick call, or would you prefer I just send over
 
 — Abdelrahman
 Founder, CloserAI
-https://closerai-app.vercel.app`,
+https://closerai.org`,
   },
   {
     subject: (co) => `${co} — saw something on your site`,
@@ -101,7 +102,7 @@ Happy to show you how it works with a quick live demo — no pressure at all.
 
 Best,
 Abdelrahman Abdelati
-https://closerai-app.vercel.app`,
+https://closerai.org`,
   },
   {
     subject: (co) => `An idea for ${co}`,
@@ -118,7 +119,7 @@ It takes about 5 minutes to add to any site. A few agents I know went from 3-4 w
 Worth 10 minutes to take a look? I can send a demo link or schedule a quick walkthrough — whichever is easier.
 
 Abdelrahman
-CloserAI — https://closerai-app.vercel.app`,
+CloserAI — https://closerai.org`,
   },
   {
     subject: (co) => `${co} — how do you handle after-hours leads?`,
@@ -134,7 +135,7 @@ If you're curious what it looks like, I'm happy to send a link where you can try
 
 — Abdelrahman Abdelati
 Founder, CloserAI
-https://closerai-app.vercel.app`,
+https://closerai.org`,
   },
 ];
 
@@ -173,9 +174,22 @@ async function main() {
   let log = { sent: [], failed: [] };
   if (fs.existsSync(LOG_PATH)) log = JSON.parse(fs.readFileSync(LOG_PATH, "utf8"));
 
+  // ─── DNC list (unsubscribed + brand-HQ catch-alls that flag spam) ─
+  let dncSet = new Set();
+  if (fs.existsSync(DNC_PATH)) {
+    dncSet = new Set(
+      fs.readFileSync(DNC_PATH, "utf8")
+        .split(/\r?\n/)
+        .map((s) => s.trim().toLowerCase())
+        .filter((s) => s && !s.startsWith("#"))
+    );
+    console.log(`Loaded ${dncSet.size} DNC entries`);
+  }
+
   const sentSet = new Set(log.sent);
-  const remaining = emails.filter((e) => !sentSet.has(e));
-  console.log(`Already sent: ${log.sent.length}. To send now: ${remaining.length}`);
+  const remaining = emails.filter((e) => !sentSet.has(e) && !dncSet.has(e.toLowerCase()));
+  const dncBlocked = emails.filter((e) => dncSet.has(e.toLowerCase())).length;
+  console.log(`Already sent: ${log.sent.length}. DNC-blocked: ${dncBlocked}. To send now: ${remaining.length}`);
 
   if (remaining.length === 0) {
     console.log("✨ Email queue fully drained. Add more leads to scripts/emails.txt to keep the blast going.");
@@ -226,9 +240,10 @@ async function main() {
         html: htmlFor(text),
         replyTo: GMAIL_USER,
         headers: {
+          // mailto unsubscribe — recipient sends a one-line "unsubscribe" reply
+          // and we add them to scripts/dnc-list.txt manually. No spammy
+          // Precedence:bulk or "Blast" X-Mailer headers — those land in spam.
           "List-Unsubscribe": `<mailto:${GMAIL_USER}?subject=unsubscribe>`,
-          "Precedence": "bulk",
-          "X-Mailer": "CloserAI-Blast/2.0",
         },
       });
       console.log(`[${++sent}/${toSend.length - skipped}] ✓ ${email} — "${subject}"`);
