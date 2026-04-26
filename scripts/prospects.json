@@ -1,30 +1,368 @@
 [
-  {"email":"contact@thehintonrealtygroup.com","company":"The Hinton Realty Group","city":"Asheville, NC","website":"thehintonrealtygroup.com"},
-  {"email":"info@blueridgebrokerage.com","company":"Blue Ridge Brokerage","city":"Asheville, NC","website":"blueridgebrokerage.com"},
-  {"email":"AnthonyG@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"Casey@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"Holly@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"LeAnn@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"Nicholas@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"Ren@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"Rika@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"Shane@mymosaicrealty.com","company":"Mosaic Community Lifestyle Realty","city":"Asheville, NC","website":"mymosaicrealty.com"},
-  {"email":"info@amherst-madison.com","company":"Amherst Madison","city":"Boise, ID","website":"amherst-madison.com"},
-  {"email":"info@cityoftreesrealestate.com","company":"City Of Trees Real Estate","city":"Boise, ID","website":"cityoftreesrealestate.com"},
-  {"email":"info@lysibishop.com","company":"Lysi Bishop Real Estate","city":"Boise, ID","website":"lysibishop.com"},
-  {"email":"contact@gablesandgates.com","company":"Gables & Gates, REALTORS","city":"Knoxville, TN","website":"gablesandgates.com"},
-  {"email":"info@gprknoxville.com","company":"Goldman Partners Realty","city":"Knoxville, TN","website":"gprknoxville.com"},
-  {"email":"jeff@jefflarueteam.com","company":"Jeff LaRue Team","city":"Knoxville, TN","website":"jefflarueteam.com"},
-  {"email":"info@CRANERE.com","company":"Crane Real Estate Group","city":"Spokane, WA","website":"cranere.com"},
-  {"email":"info@homes4youspokane.com","company":"Homes 4 You Spokane","city":"Spokane, WA","website":"homes4youspokane.com"},
-  {"email":"info@kellyright.com","company":"Kelly Right Real Estate","city":"Spokane, WA","website":"kellyright.com"},
-  {"email":"info@kestell.com","company":"Kestell Company","city":"Spokane, WA","website":"kestell.com"},
-  {"email":"inquiries@dezdafinn.com","company":"Dezda Finn Real Estate","city":"Spokane, WA","website":"dezdafinn.com"},
-  {"email":"shannon@bestchoicerealtywa.com","company":"Best Choice Realty","city":"Spokane, WA","website":"bestchoicerealtywa.com"},
-  {"email":"j.ryanmcleish@designwarealty.com","company":"Designwa Realty","city":"Spokane, WA","website":"designwarealty.com"},
-  {"email":"valleybroker@firstlookre.com","company":"First Look Real Estate","city":"Spokane, WA","website":"firstlookre.com"},
-  {"email":"broker@rogintegrity.com","company":"Realty ONE Group Integrity","city":"Tucson, AZ","website":"realtyonegroupintegrity.com"},
-  {"email":"vicki@rogintegrity.com","company":"Realty ONE Group Integrity","city":"Tucson, AZ","website":"realtyonegroupintegrity.com"},
-  {"email":"comments@cookreservices.com","company":"Cook Real Estate","city":"Snoqualmie Valley, WA","website":"cookreservices.com"},
-  {"email":"DinaBurson@McCarleyHomes.com","company":"McCarley Homes","city":"Tacoma, WA","website":"mccarleyhomes.com"}
+  {
+    "email": "contact@thehintonrealtygroup.com",
+    "company": "The Hinton Realty Group",
+    "city": "Asheville, NC",
+    "website": "thehintonrealtygroup.com"
+  },
+  {
+    "email": "info@blueridgebrokerage.com",
+    "company": "Blue Ridge Brokerage",
+    "city": "Asheville, NC",
+    "website": "blueridgebrokerage.com"
+  },
+  {
+    "email": "AnthonyG@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "Casey@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "Holly@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "LeAnn@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "Nicholas@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "Ren@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "Rika@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "Shane@mymosaicrealty.com",
+    "company": "Mosaic Community Lifestyle Realty",
+    "city": "Asheville, NC",
+    "website": "mymosaicrealty.com"
+  },
+  {
+    "email": "info@amherst-madison.com",
+    "company": "Amherst Madison",
+    "city": "Boise, ID",
+    "website": "amherst-madison.com"
+  },
+  {
+    "email": "info@cityoftreesrealestate.com",
+    "company": "City Of Trees Real Estate",
+    "city": "Boise, ID",
+    "website": "cityoftreesrealestate.com"
+  },
+  {
+    "email": "info@lysibishop.com",
+    "company": "Lysi Bishop Real Estate",
+    "city": "Boise, ID",
+    "website": "lysibishop.com"
+  },
+  {
+    "email": "contact@gablesandgates.com",
+    "company": "Gables & Gates, REALTORS",
+    "city": "Knoxville, TN",
+    "website": "gablesandgates.com"
+  },
+  {
+    "email": "info@gprknoxville.com",
+    "company": "Goldman Partners Realty",
+    "city": "Knoxville, TN",
+    "website": "gprknoxville.com"
+  },
+  {
+    "email": "jeff@jefflarueteam.com",
+    "company": "Jeff LaRue Team",
+    "city": "Knoxville, TN",
+    "website": "jefflarueteam.com"
+  },
+  {
+    "email": "info@CRANERE.com",
+    "company": "Crane Real Estate Group",
+    "city": "Spokane, WA",
+    "website": "cranere.com"
+  },
+  {
+    "email": "info@homes4youspokane.com",
+    "company": "Homes 4 You Spokane",
+    "city": "Spokane, WA",
+    "website": "homes4youspokane.com"
+  },
+  {
+    "email": "info@kellyright.com",
+    "company": "Kelly Right Real Estate",
+    "city": "Spokane, WA",
+    "website": "kellyright.com"
+  },
+  {
+    "email": "info@kestell.com",
+    "company": "Kestell Company",
+    "city": "Spokane, WA",
+    "website": "kestell.com"
+  },
+  {
+    "email": "inquiries@dezdafinn.com",
+    "company": "Dezda Finn Real Estate",
+    "city": "Spokane, WA",
+    "website": "dezdafinn.com"
+  },
+  {
+    "email": "shannon@bestchoicerealtywa.com",
+    "company": "Best Choice Realty",
+    "city": "Spokane, WA",
+    "website": "bestchoicerealtywa.com"
+  },
+  {
+    "email": "j.ryanmcleish@designwarealty.com",
+    "company": "Designwa Realty",
+    "city": "Spokane, WA",
+    "website": "designwarealty.com"
+  },
+  {
+    "email": "valleybroker@firstlookre.com",
+    "company": "First Look Real Estate",
+    "city": "Spokane, WA",
+    "website": "firstlookre.com"
+  },
+  {
+    "email": "broker@rogintegrity.com",
+    "company": "Realty ONE Group Integrity",
+    "city": "Tucson, AZ",
+    "website": "realtyonegroupintegrity.com"
+  },
+  {
+    "email": "vicki@rogintegrity.com",
+    "company": "Realty ONE Group Integrity",
+    "city": "Tucson, AZ",
+    "website": "realtyonegroupintegrity.com"
+  },
+  {
+    "email": "comments@cookreservices.com",
+    "company": "Cook Real Estate",
+    "city": "Snoqualmie Valley, WA",
+    "website": "cookreservices.com"
+  },
+  {
+    "email": "DinaBurson@McCarleyHomes.com",
+    "company": "McCarley Homes",
+    "city": "Tacoma, WA",
+    "website": "mccarleyhomes.com"
+  },
+  {
+    "email": "thefirm@thefirmmemphis.com",
+    "company": "The FIRM Memphis",
+    "city": "Memphis, TN",
+    "website": "thefirmmemphis.com"
+  },
+  {
+    "email": "info@schulerbauer.com",
+    "company": "Schuler Bauer Real Estate Services",
+    "city": "Louisville, KY",
+    "website": "schulerbauer.com"
+  },
+  {
+    "email": "Info@TampaBuyersBroker.com",
+    "company": "Tampa Buyers Broker",
+    "city": "Tampa, FL",
+    "website": "tampabuyersbroker.com"
+  },
+  {
+    "email": "Alex@theduncanduo.com",
+    "company": "The Duncan Duo Team",
+    "city": "Tampa, FL",
+    "website": "theduncanduo.com"
+  },
+  {
+    "email": "Ben@theduncanduo.com",
+    "company": "The Duncan Duo Team",
+    "city": "Tampa, FL",
+    "website": "theduncanduo.com"
+  },
+  {
+    "email": "Kat@theduncanduo.com",
+    "company": "The Duncan Duo Team",
+    "city": "Tampa, FL",
+    "website": "theduncanduo.com"
+  },
+  {
+    "email": "Info@theduncanduo.com",
+    "company": "The Duncan Duo Team",
+    "city": "Tampa, FL",
+    "website": "theduncanduo.com"
+  },
+  {
+    "email": "info@giverealty.com",
+    "company": "Give Realty",
+    "city": "Austin, TX",
+    "website": "giverealty.com"
+  },
+  {
+    "email": "info@rebuilt.com",
+    "company": "Rebuilt Offers",
+    "city": "Nashville, TN",
+    "website": "rebuilt.com"
+  },
+  {
+    "email": "nashville@rebuilt.com",
+    "company": "Rebuilt Offers",
+    "city": "Nashville, TN",
+    "website": "rebuilt.com"
+  },
+  {
+    "email": "gretchen@thecoleygroup.com",
+    "company": "The Coley Group",
+    "city": "Raleigh, NC",
+    "website": "thecoleygroup.com"
+  },
+  {
+    "email": "amy@sqftcommercial.com",
+    "company": "SqFt Commercial",
+    "city": "Cincinnati, OH",
+    "website": "sqftcommercial.com"
+  },
+  {
+    "email": "jacob@sqftcommercial.com",
+    "company": "SqFt Commercial",
+    "city": "Cincinnati, OH",
+    "website": "sqftcommercial.com"
+  },
+  {
+    "email": "jared@sqftcommercial.com",
+    "company": "SqFt Commercial",
+    "city": "Cincinnati, OH",
+    "website": "sqftcommercial.com"
+  },
+  {
+    "email": "roddy@sqftcommercial.com",
+    "company": "SqFt Commercial",
+    "city": "Cincinnati, OH",
+    "website": "sqftcommercial.com"
+  },
+  {
+    "email": "brett@treorealtors.com",
+    "company": "TREO Realtors",
+    "city": "Cincinnati, OH",
+    "website": "treorealtors.com"
+  },
+  {
+    "email": "info@treorealtors.com",
+    "company": "TREO Realtors",
+    "city": "Cincinnati, OH",
+    "website": "treorealtors.com"
+  },
+  {
+    "email": "info@austinbanksrealestatecompany.com",
+    "company": "Austin Banks Real Estate Company",
+    "city": "Tyler, TX",
+    "website": "austinbanksrealestatecompany.com"
+  },
+  {
+    "email": "inquiries@austinbanksrealestatecompany.com",
+    "company": "Austin Banks Real Estate Company",
+    "city": "Tyler, TX",
+    "website": "austinbanksrealestatecompany.com"
+  },
+  {
+    "email": "info@acquirehomes.com",
+    "company": "Acquire Homes",
+    "city": "Colorado Springs, CO",
+    "website": "acquirehomes.com"
+  },
+  {
+    "email": "info@uniqueprop.com",
+    "company": "Unique Properties Inc.",
+    "city": "Denver, CO",
+    "website": "uniqueprop.com"
+  },
+  {
+    "email": "support@brixtwincities.com",
+    "company": "BRIX Real Estate",
+    "city": "Minneapolis-St Paul, MN",
+    "website": "brixtwincities.com"
+  },
+  {
+    "email": "team@kenwoodcommercial.com",
+    "company": "Kenwood Commercial",
+    "city": "Minneapolis, MN",
+    "website": "kenwoodcommercial.com"
+  },
+  {
+    "email": "pharvey@rawhideco.us",
+    "company": "Rawhide Real Estate",
+    "city": "Colorado Springs, CO",
+    "website": "rawhide.net"
+  },
+  {
+    "email": "mail@axispropertyadvisors.com",
+    "company": "Axis Property Advisors",
+    "city": "Phoenix, AZ",
+    "website": "axispropertyadvisors.com"
+  },
+  {
+    "email": "mail@axisre.com",
+    "company": "AXIS Real Estate",
+    "city": "Phoenix, AZ",
+    "website": "axisre.com"
+  },
+  {
+    "email": "hello@alignagents.com",
+    "company": "ALIGN Real Estate",
+    "city": "Orlando, FL",
+    "website": "alignagents.com"
+  },
+  {
+    "email": "info@insiterei.com",
+    "company": "Insite Real Estate",
+    "city": "Orlando, FL",
+    "website": "insiterei.com"
+  },
+  {
+    "email": "CFL@insiterei.com",
+    "company": "Insite Real Estate",
+    "city": "Orlando, FL",
+    "website": "insiterei.com"
+  },
+  {
+    "email": "info@cflprimerealestate.com",
+    "company": "Central Florida Prime Real Estate",
+    "city": "Orlando, FL",
+    "website": "centralfloridaprimerealestate.com"
+  },
+  {
+    "email": "info@thenicholscompany.com",
+    "company": "The Nichols Company",
+    "city": "Charlotte, NC",
+    "website": "thenicholscompany.com"
+  },
+  {
+    "email": "info@wemertgrouprealty.com",
+    "company": "Wemert Group Realty",
+    "city": "Orlando, FL",
+    "website": "wemertgrouprealty.com"
+  },
+  {
+    "email": "zoe@ratiore.com",
+    "company": "Ratio Real Estate",
+    "city": "Phoenix, AZ",
+    "website": "ratiore.com"
+  }
 ]

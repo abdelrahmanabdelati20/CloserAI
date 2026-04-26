@@ -68,8 +68,14 @@ const formatted = (1234567).toLocaleString("en-US"); // "1,234,567"
 
 ## Current Production Configuration
 
-- **Live URL:** `https://closerai-app.vercel.app`
+- **Live URL:** `https://closerai.org` (canonical)
+  - The legacy `closerai-app.vercel.app` subdomain still exists as a Vercel
+    deploy alias but middleware 308-redirects every request from it to the
+    canonical `closerai.org`. NEVER use `closerai-app.vercel.app` in copy,
+    docs, NEXTAUTH_URL, NEXT_PUBLIC_APP_URL, or outreach templates — every
+    such reference is a bug.
 - **Primary contact email:** `AbdelrahmanAbdelati20@gmail.com`
+- **Cold-outreach sender:** `outreach@closerai.org` via Resend (NEVER Gmail SMTP)
 - **Pricing:** Starter $297/mo, Professional $597/mo, Enterprise $1,297/mo
 - **Setup fee:** $0 (all plans)
 - **Conversation limits:** 1,000 / 3,000 / 10,000 per month
