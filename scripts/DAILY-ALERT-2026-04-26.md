@@ -1,9 +1,10 @@
-# 🚨 Daily Outreach — 2026-04-26 — GMAIL ACCOUNT BANNED
+# 🚨 Daily Outreach — 2026-04-26 — Gmail banned, recovered, migrated to Resend
 
-**Read this first.** Your Gmail account `AbdelrahmanAbdelati20@gmail.com`
-got SMTP-suspended by Gmail today (error code `534-5.7.14`) on the 3rd
-send of the daily blast. **All scheduled cold-email outreach has been
-disabled** to prevent further damage.
+**TL;DR.** Personal Gmail got SMTP-suspended this morning (`534-5.7.14`
+on the 3rd send). You recovered the account. We migrated cold sending
+to Resend on `outreach@closerai.org` — already verified, with full
+DKIM/SPF/DMARC. **25 emails went out today through Resend** with valid
+message IDs. Personal Gmail is no longer used for cold outreach. Period.
 
 ---
 
@@ -56,67 +57,90 @@ disabled** to prevent further damage.
 
 | Channel | Volume | Status |
 |---|---|---|
-| **Email blast (GH Actions, Gmail)** | **2 sent before ban** | ❌ DISABLED — Gmail account locked, schedule turned off |
-| **Email blast (Vercel crons, Resend/SendGrid)** | Unknown — running | ✅ Safe (separate sender chain) |
+| **Email blast (Resend, outreach@closerai.org)** | **25 sent** with Resend message IDs | ✅ LIVE — proper transactional sender, verified domain |
+| **Email blast (GH Actions, Gmail)** | 2 sent before ban | ❌ DISABLED — schedule removed from `daily-email-outreach.yml` |
+| **Email blast (Vercel `/api/cron/prospect-blast`)** | Hits 60s timeout (Haiku personalization too slow) | ⚠️ Needs lower batch size or longer maxDuration |
 | **IG DMs** | **1 sent** to Mariam Misyura (Tacoma, verified) | ⚠️ Browser ext lost permission for instagram.com mid-session |
 | **X / Twitter** | **2 posted** (SPEED + PAIN angles) with closerai.org link card | ✅ Live |
-| **Facebook groups** | 0 | 🔴 Skipped — extension was blocked yesterday on facebook.com |
-| **Gmail inbox replies** | 0 reviewed | ⚠️ Account `AbdelrahmanAbdelati20@gmail.com` not signed into local Chrome — also now banned |
+| **Facebook groups** | 0 | 🔴 Skipped — extension blocked on facebook.com |
+| **Gmail inbox replies** | 0 reviewed | ⚠️ Account not signed into local Chrome (but now recovered — sign in to check) |
+
+## The 25 sent today via Resend (all `info@`, `contact@`, or named brokerage contacts):
+
+Asheville NC: ashevillerealestateservice, appalachianrealty,
+brokerasheville, greybeardrealty • Tacoma WA: 253realty,
+momentum-partners • Knoxville TN: slymanrealestate, goswitz,
+knoxvilleshomes, jefflarueteam • Eugene OR: morerealty, ureproperties,
+lanecountyhomes, sweetsellsoregon • Boise ID: lysibishop,
+brokerboiseteam, kingandedge, cityoftreesrealestate, 208boiserealestate,
+boisecompass • New Orleans LA: neworleanspropertyservices,
+satsumarealestate, nolalivingrealty, freretrealty • plus
+ruben@tessiergroup.com (Asheville).
+
+Each got one of 4 personalized variants based on a domain hash, with
+the brokerage name woven in. Resend handles bounce reporting — anything
+that doesn't deliver gets logged in `scripts/blast-log.json` `failed`.
 
 ---
 
 ## What you need to do — in this order
 
-### 1. Recover the Gmail account (TODAY)
-Visit https://accounts.google.com/signin/recovery — error `534-5.7.14`
-is recoverable but requires you to verify identity. While you're there,
-check `Settings → Forwarding and POP/IMAP` and `Less secure app access`
-to make sure nothing was changed by the suspension.
+### 1. ✅ Recover Gmail — DONE (per your message)
 
-### 2. Stop using personal Gmail for cold outreach. Forever.
-Personal Gmail is not designed for cold outreach. Even with all the
-deliverability fixes I made today, sustained 100/day from a single
-personal account WILL eventually trip Gmail's bulk-mail flags. Tonight
-proved this empirically.
+### 2. ✅ Migrate to Resend — DONE today
+- Resend domain `closerai.org` is verified (since 2026-04-23) with
+  sending enabled.
+- `RESEND_API_KEY` is set on Vercel production.
+- New script `scripts/blast-via-resend.js` lives in the repo and was
+  used today — same emails.txt queue, same dedup, same templates,
+  but sends through Resend's HTTPS API instead of Gmail SMTP.
+- Run it any time with: `BLAST_LIMIT=25 node scripts/blast-via-resend.js`
+  after `vercel env pull .env.production --environment=production --yes`.
 
-### 3. Migrate sending to Resend on `outreach@closerai.org`
-The infrastructure for this already exists in `src/lib/email.ts` — it
-just needs a `RESEND_API_KEY`. Steps:
+### 3. Tomorrow & beyond — daily ramp
 
-  1. Create a Resend account at https://resend.com (free tier: 3,000
-     emails/month, plenty for cold outreach ramp)
-  2. Add domain `closerai.org`. Resend will give you 3 DNS records:
-     - SPF (`v=spf1 include:_spf.resend.com ~all`)
-     - DKIM (a CNAME on `resend._domainkey.closerai.org`)
-     - DMARC (recommended)
-  3. Add those 3 records on the DNS provider for closerai.org
-  4. Wait ~10 min for verification
-  5. Generate an API key in Resend → Vercel → Project → Settings →
-     Environment Variables → add `RESEND_API_KEY = re_...`
-  6. Redeploy (`npm run deploy`)
+**Recommended schedule for the next 14 days:**
 
-After that, the existing Vercel `/api/cron/prospect-blast` cron will
-send via Resend automatically — properly authenticated, with DKIM
-signing, with one-click unsubscribe baked in (it already supports all
-of this in `src/lib/email.ts`).
+| Day | Volume | Why |
+|---|---|---|
+| Today (day 0) | 25 ✅ done | Established baseline on a 3-day-old Resend domain |
+| Day 1-3 | 25/day | Hold steady, let Resend reputation settle |
+| Day 4-7 | 35-40/day | Small bump |
+| Day 8-14 | 50-75/day | If bounce + complaint rate stays healthy |
+| Day 15+ | 75-100/day | Full target volume |
 
-### 4. Warm up the new sender slowly
-Even from a perfectly-authenticated domain, ramp from 5/day → 50/day
-over 2–3 weeks. The Vercel cron already defaults to 6/hour
-(`DEFAULT_BLAST_PER_HOUR = 6` in `prospect-blast/route.ts`), which is
-the right pace.
+Going faster than this on a brand-new sending domain is what got the
+Gmail account banned. Resend is far more forgiving — but it's still a
+shared-IP service and they'll throttle the API key (or worse, kick you)
+if too many recipients mark you as spam.
 
-### 5. Re-enable GH Actions blast cron ONLY after migrating
-When Resend is live, you can either:
-- Keep the GH Actions blast for the simple flat-file queue
-  (`scripts/emails.txt`), but rewrite `blast-emails-ci.js` to use the
-  Resend HTTP API instead of nodemailer + Gmail SMTP — then re-add the
-  `schedule:` block to `.github/workflows/daily-email-outreach.yml`
-- OR retire it entirely and rely on the Vercel `prospect-blast` cron
-  which already imports from a `ProspectQueue` Prisma model with proper
-  per-prospect Haiku personalization
+### 4. Wire the daily run into automation
 
-I recommend option 2.
+Two options, pick one:
+
+**Option A (simplest)** — Re-enable the GH Actions cron, but flip the
+script from `blast-emails-ci.js` to `blast-via-resend.js`. I can do that
+in 5 min next session. The workflow secrets need a `RESEND_API_KEY` and
+`SENDGRID_FROM_EMAIL` added (currently it only has Gmail creds).
+
+**Option B (more capable)** — Use the Vercel `/api/cron/prospect-blast`
+that already exists. Has per-prospect Haiku personalization, GDPR-safe
+country filtering, and a proper Prisma `ProspectQueue` model. Issue: the
+60s function budget can't fit 25 prospects when Haiku is slow. Either
+increase `maxDuration` to 300s in `vercel.json` (Pro tier required) OR
+lower `BLAST_PER_DAY` to 10. I'd recommend lower to 10 and run the cron
+3x/day at different times.
+
+I recommend **Option A first** (zero infra work, ships tomorrow) and
+**Option B as the long-term play** once you upgrade Vercel to Pro tier.
+
+### 5. Watch your inbox at outreach@closerai.org
+Resend forwards replies to whatever address you set as `reply_to` —
+which I set to `outreach@closerai.org`. If that mailbox isn't being
+checked, set up forwarding to your main Gmail (now recovered) so
+replies actually reach you. Resend dashboard at
+https://resend.com/emails shows delivered/bounced/replied for every
+sent email — bookmark it.
 
 ---
 
@@ -153,15 +177,19 @@ I recommend option 2.
 
 ## Bottom line
 
-The cold-email channel is offline until you (a) recover Gmail and
-(b) migrate to Resend on closerai.org. Once that's done — probably
-2–4 hours of total work tomorrow — the existing Vercel `prospect-blast`
-cron picks up automatically and sends through a proper transactional
-sender that Gmail/Yahoo/Outlook actually trust.
+The cold-email channel is **back online — through Resend, not Gmail.**
 
-The X/Twitter channel is live (2 tweets out today).
-The IG channel sent 1 hyper-personalized DM (Mariam Misyura, Tacoma).
-The FB channel is still blocked at the extension level.
+- ✅ 25 emails sent today via Resend, all from `outreach@closerai.org`
+  with full DKIM/SPF/DMARC. Resend dashboard at https://resend.com/emails
+  shows delivery + open + bounce status.
+- ✅ Personal Gmail account is no longer used for cold outreach. Period.
+- ✅ The GH Actions schedule that nuked Gmail is disabled until we wire
+  it to Resend.
+- ✅ X/Twitter live (2 tweets), IG 1 DM (Mariam Misyura, Tacoma),
+  FB still blocked at the extension level.
 
-The most leveraged thing you can do tonight: kick off the Resend
-migration. Everything else is downstream of that.
+**Tomorrow's first move:** decide between Option A (5-min wire-up of
+the GH Actions cron to Resend) or Option B (Vercel Pro tier upgrade for
+the prospect-blast cron with full Haiku personalization). I'd ship A
+tomorrow and circle back to B when you're ready to go from 25/day to
+75-100/day.
